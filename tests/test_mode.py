@@ -1,21 +1,7 @@
-"""test_mode.py - test the "mode" function
-
-CellProfiler is distributed under the GNU General Public License,
-but this file is licensed under the more permissive BSD license.
-See the accompanying file LICENSE for details.
-
-Copyright (c) 2003-2009 Massachusetts Institute of Technology
-Copyright (c) 2009-2015 Broad Institute
-All rights reserved.
-
-Please see the AUTHORS file for credits.
-
-Website: http://www.cellprofiler.org
-"""
 import logging
 logger = logging.getLogger(__name__)
 import numpy as np
-from cellprofiler.cpmath.mode import mode
+from centrosome.mode import mode
 import unittest
 
 class TestMode(unittest.TestCase):
@@ -41,12 +27,12 @@ class TestMode(unittest.TestCase):
             pass
         else:
             setup = ("import numpy as np;"
-                     "from cellprofiler.cpmath.mode import mode;"
+                     "from centrosome.mode import mode;"
                      "from scipy.stats import mode as scipy_mode;"
                      "r = np.random.RandomState(55);"
                      "a = r.randint(0, 10, size=(100000));")
             scipy_time = timeit.timeit("scipy_mode(a)", setup, number = 10)
             my_time = timeit.timeit("mode(a)", setup, number = 10)
             self.assertLess(my_time, scipy_time)
-            logger.info("cellprofiler.cpmath.mode.mode=%f sec" % my_time)
+            logger.info("centrosome.mode.mode=%f sec" % my_time)
             logger.info("scipy.stats.mode=%f sec" % scipy_time)

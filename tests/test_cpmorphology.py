@@ -1,18 +1,3 @@
-"""test_cpmorphology - test the functions in cellprofiler.cpmath.cpmorphology
-
-CellProfiler is distributed under the GNU General Public License,
-but this file is licensed under the more permissive BSD license.
-See the accompanying file LICENSE for details.
-
-Copyright (c) 2003-2009 Massachusetts Institute of Technology
-Copyright (c) 2009-2015 Broad Institute
-All rights reserved.
-
-Please see the AUTHORS file for credits.
-
-Website: http://www.cellprofiler.org
-"""
-
 import base64
 import unittest
 import numpy as np
@@ -20,9 +5,9 @@ import scipy.ndimage as scind
 import scipy.misc
 import scipy.io.matlab
 
-import cellprofiler.cpmath.cpmorphology as morph
-from cellprofiler.cpmath.cpmorphology import fixup_scipy_ndimage_result as fix
-from cellprofiler.cpmath.filter import permutations
+import centrosome.cpmorphology as morph
+from centrosome.cpmorphology import fixup_scipy_ndimage_result as fix
+from centrosome.filter import permutations
 
         
 class TestFillLabeledHoles(unittest.TestCase):

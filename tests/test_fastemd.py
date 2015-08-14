@@ -15,7 +15,7 @@ Website: http://www.cellprofiler.org
 
 import numpy as np
 import unittest
-from cellprofiler.cpmath.fastemd import *
+from centrosome.fastemd import *
 
 class TestFastEMD(unittest.TestCase):
     def check(

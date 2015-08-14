@@ -1,25 +1,10 @@
-'''test_threshold - test the threshold module
-
-CellProfiler is distributed under the GNU General Public License,
-but this file is licensed under the more permissive BSD license.
-See the accompanying file LICENSE for details.
-
-Copyright (c) 2003-2009 Massachusetts Institute of Technology
-Copyright (c) 2009-2015 Broad Institute
-All rights reserved.
-
-Please see the AUTHORS file for credits.
-
-Website: http://www.cellprofiler.org
-'''
-
 import hashlib
 import numpy as np
 from scipy.ndimage import convolve1d
 import scipy.stats
 import unittest
 
-import cellprofiler.cpmath.threshold as T
+import centrosome.threshold as T
 
 class TestThreshold(unittest.TestCase):
     def test_01_00_nothing(self):

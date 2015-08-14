@@ -1,24 +1,8 @@
-"""test_zernike.py - test the zernike functions
-
-CellProfiler is distributed under the GNU General Public License,
-but this file is licensed under the more permissive BSD license.
-See the accompanying file LICENSE for details.
-
-Copyright (c) 2003-2009 Massachusetts Institute of Technology
-Copyright (c) 2009-2015 Broad Institute
-All rights reserved.
-
-Please see the AUTHORS file for credits.
-
-Website: http://www.cellprofiler.org
-"""
-
 import numpy as np
 import scipy.ndimage as scind
 import unittest
-
-import cellprofiler.cpmath.zernike as z
-from cellprofiler.cpmath.cpmorphology import fill_labeled_holes, draw_line
+import centrosome.zernike as z
+from centrosome.cpmorphology import fill_labeled_holes, draw_line
 
 class TestZernike(unittest.TestCase):
     def make_zernike_indexes(self):

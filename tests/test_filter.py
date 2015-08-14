@@ -1,24 +1,9 @@
-'''test_filter - test the filter module
-
-CellProfiler is distributed under the GNU General Public License,
-but this file is licensed under the more permissive BSD license.
-See the accompanying file LICENSE for details.
-
-Copyright (c) 2003-2009 Massachusetts Institute of Technology
-Copyright (c) 2009-2015 Broad Institute
-All rights reserved.
-
-Please see the AUTHORS file for credits.
-
-Website: http://www.cellprofiler.org
-'''
-
 import base64
 import numpy as np
 from scipy.ndimage import binary_dilation, binary_erosion, convolve
 import unittest
 
-import cellprofiler.cpmath.filter as F
+import centrosome.filter as F
 
 '''Perform line-integration per-column of the image'''
 VERTICAL = 'vertical'

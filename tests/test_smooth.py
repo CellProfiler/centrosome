@@ -1,22 +1,7 @@
-"""test_smooth - test the smoothing module
-
-CellProfiler is distributed under the GNU General Public License,
-but this file is licensed under the more permissive BSD license.
-See the accompanying file LICENSE for details.
-
-Copyright (c) 2003-2009 Massachusetts Institute of Technology
-Copyright (c) 2009-2015 Broad Institute
-All rights reserved.
-
-Please see the AUTHORS file for credits.
-
-Website: http://www.cellprofiler.org
-"""
-
 import unittest
 import numpy as np
 import scipy.ndimage
-import cellprofiler.cpmath.smooth as cpms
+import centrosome.smooth as cpms
 
 class TestSmoothWithNoise(unittest.TestCase):
     def test_01_smooth_zero(self):

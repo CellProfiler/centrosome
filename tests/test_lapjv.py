@@ -1,20 +1,8 @@
-'''test_lapjv.py - test the Jonker-Volgenant implementation
-
-CellProfiler is distributed under the GNU General Public License,
-but this file is licensed under the more permissive BSD license.
-See the accompanying file LICENSE for details.
-
-Copyright (c) 2003-2009 Massachusetts Institute of Technology
-Copyright (c) 2009-2015 Broad Institute
-All rights reserved.
-'''
-
 import numpy as np
-import scipy.ndimage as scind
 import unittest
 
-import cellprofiler.cpmath.lapjv as LAPJV
-from cellprofiler.cpmath.filter import permutations
+import centrosome.lapjv as LAPJV
+from centrosome.filter import permutations
 
 class TestLAPJVPYX(unittest.TestCase):
     def test_01_01_reduction_transfer(self):

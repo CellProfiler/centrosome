@@ -1,26 +1,12 @@
-"""test_propagate - test the propagate algorithm
-
-CellProfiler is distributed under the GNU General Public License,
-but this file is licensed under the more permissive BSD license.
-See the accompanying file LICENSE for details.
-
-Copyright (c) 2003-2009 Massachusetts Institute of Technology
-Copyright (c) 2009-2015 Broad Institute
-All rights reserved.
-
-Please see the AUTHORS file for credits.
-
-Website: http://www.cellprofiler.org
-"""
-__version__='$Revision$'
+__version__ = '$Revision$'
 
 import numpy
 import struct
 import unittest
 import time
 
-import cellprofiler.cpmath.propagate
-import cellprofiler.cpmath._propagate
+import centrosome.propagate
+import _propagate
 
 class Test_Propagate(unittest.TestCase):
     def test_01_01_test_convert_to_ints(self):
@@ -33,10 +19,10 @@ class Test_Propagate(unittest.TestCase):
             d2 = struct.unpack("d",bytes2)[0]
             if d1 != d1 or d2 != d2: # NaN test
                 continue
-            t1 = cellprofiler.cpmath._propagate.convert_to_ints(d1)
-            t2 = cellprofiler.cpmath._propagate.convert_to_ints(d2)
+            t1 = _propagate.convert_to_ints(d1)
+            t2 = _propagate.convert_to_ints(d2)
             self.assertEqual((d1<d2), (t1<t2),"%s:%s %f<%f != (%d,%d)<(%d,%d)"%(struct.unpack("BBBBBBBB",bytes1),struct.unpack("BBBBBBBB",bytes2),d1,d2,t1[0],t1[1],t2[0],t2[1]))
-    
+
     def test_01_02_test_convert_to_ints(self):
         """Test particular corner cases for convert_to_ints"""
         for bytes1,bytes2 in (((0x80,0,0,0   ,0,0,0,0x7f),(0x80,0,0,0   ,0,0,0,0x80)),
@@ -48,8 +34,8 @@ class Test_Propagate(unittest.TestCase):
             d2 = struct.unpack("d",struct.pack("BBBBBBBB",bytes2[0],bytes2[1],bytes2[2],bytes2[3],bytes2[4],bytes2[5],bytes2[6],bytes2[7]))[0]
             if d1 != d1 or d2 != d2: # NaN test
                 continue
-            t1 = cellprofiler.cpmath._propagate.convert_to_ints(d1)
-            t2 = cellprofiler.cpmath._propagate.convert_to_ints(d2)
+            t1 = _propagate.convert_to_ints(d1)
+            t2 = _propagate.convert_to_ints(d2)
             self.assertEqual((d1<d2), (t1<t2),"%s:%s %f<%f != (%d,%d)<(%d,%d)"%(repr(bytes1),repr(bytes2),d1,d2,t1[0],t1[1],t2[0],t2[1]))
 
 class TestPropagate(unittest.TestCase):
@@ -57,27 +43,27 @@ class TestPropagate(unittest.TestCase):
         image = numpy.zeros((10,10))
         labels = numpy.zeros((10,10),int)
         mask = numpy.ones((10,10),bool)
-        result,distances = cellprofiler.cpmath.propagate.propagate(image, labels, mask, 1.0)
+        result,distances = centrosome.propagate.propagate(image, labels, mask, 1.0)
         self.assertTrue(numpy.all(result==0))
-    
+
     def test_01_02_one_label(self):
         image = numpy.zeros((10,10))
         mask = numpy.ones((10,10),bool)
         labels = numpy.zeros((10,10),int)
         labels[5,5] = 1
-        result,distances = cellprofiler.cpmath.propagate.propagate(image, labels, mask, 1.0)
+        result,distances = centrosome.propagate.propagate(image, labels, mask, 1.0)
         self.assertTrue(numpy.all(result==1))
-        
+
     def test_01_03_two_labels(self):
         image = numpy.zeros((10,10))
         labels = numpy.zeros((10,10),int)
         mask = numpy.ones((10,10),bool)
         labels[0,5] = 1
         labels[9,5] = 2
-        result,distances = cellprofiler.cpmath.propagate.propagate(image, labels, mask, 1.0)
+        result,distances = centrosome.propagate.propagate(image, labels, mask, 1.0)
         self.assertTrue(numpy.all(result[:5,:]==1))
         self.assertTrue(numpy.all(result[5:,:]==2))
-    
+
     def test_01_04_barrier(self):
         image = numpy.zeros((10,10))
         image[5,:5] = 1
@@ -86,11 +72,11 @@ class TestPropagate(unittest.TestCase):
         labels[0,0] = 1
         labels[9,0] = 2
         mask = numpy.ones((10,10),bool)
-        result,distances = cellprofiler.cpmath.propagate.propagate(image, labels, mask, 0.1)
+        result,distances = centrosome.propagate.propagate(image, labels, mask, 0.1)
         x,y = numpy.mgrid[0:10,0:10]
         self.assertTrue(numpy.all(result[numpy.logical_and(x<5,y<5)]==1))
         self.assertTrue(numpy.all(result[numpy.logical_or(x>5,y>5)]==2))
-    
+
     def test_01_05_leaky_barrier(self):
         image = numpy.zeros((10,10))
         image[4,1:4] = 1
@@ -99,11 +85,11 @@ class TestPropagate(unittest.TestCase):
         labels[0,0] = 1
         labels[9,0] = 2
         mask = numpy.ones((10,10),bool)
-        result,distances = cellprofiler.cpmath.propagate.propagate(image, labels, mask, 0.1)
+        result,distances = centrosome.propagate.propagate(image, labels, mask, 0.1)
         x,y = numpy.mgrid[0:10,0:10]
         self.assertTrue(numpy.all(result[numpy.logical_and(x<4,y<4)]==1))
         self.assertTrue(result[4,0]==1)
-    
+
     def test_01_06_mask(self):
         image = numpy.zeros((10,10))
         labels = numpy.zeros((10,10),int)
@@ -112,7 +98,7 @@ class TestPropagate(unittest.TestCase):
         mask[7,2] = False
         labels[0,5] = 1
         labels[9,5] = 2
-        result,distances = cellprofiler.cpmath.propagate.propagate(image, labels, mask, 1.0)
+        result,distances = centrosome.propagate.propagate(image, labels, mask, 1.0)
         self.assertEqual(result[2,2],0)
         self.assertEqual(result[7,2],0)
         x,y = numpy.mgrid[0:10,0:10]
@@ -122,8 +108,7 @@ class TestPropagate(unittest.TestCase):
         mask_two[7,2] = False
         self.assertTrue(numpy.all(result[mask_one] == 1))
         self.assertTrue(numpy.all(result[mask_two] == 2))
-        
-    
+
     def test_02_01_time_propagate(self):
         image = numpy.random.uniform(size=(1000,1000))
         x_coords = numpy.random.uniform(low=0, high=1000,size=(300,)).astype(int)
@@ -131,8 +116,7 @@ class TestPropagate(unittest.TestCase):
         labels = numpy.zeros((1000,1000),dtype=int)
         labels[x_coords,y_coords]=numpy.array(range(300))+1
         mask = numpy.ones((1000,1000),bool)
-        t1 = time.clock() 
-        result,distances = cellprofiler.cpmath.propagate.propagate(image, labels, mask, 1.0)
+        t1 = time.clock()
+        result, distances = centrosome.propagate.propagate(image, labels, mask, 1.0)
         t2 = time.clock()
         print "Running time: %f sec"%(t2-t1)
-        
