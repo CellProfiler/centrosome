@@ -1,6 +1,7 @@
 addons:
     apt:
         packages:
+            - python-numpy
             - python-scipy
 cache:
     apt: true

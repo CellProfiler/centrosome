@@ -1,11 +1,12 @@
+import glob
 import pkg_resources
 import setuptools
 import setuptools.command.build_ext
 import setuptools.command.test
 import sys
+import Cython.Build
 
-
-class Build(setuptools.command.build_ext.build_ext):
+class BuildExtension(setuptools.command.build_ext.build_ext):
     def build_extensions(self):
         numpy_includes = pkg_resources.resource_filename("numpy", "core/include")
 
@@ -13,12 +14,9 @@ class Build(setuptools.command.build_ext.build_ext):
             if hasattr(extension, "include_dirs") and numpy_includes not in extension.include_dirs:
                 extension.include_dirs.append(numpy_includes)
 
+            extension.include_dirs.append("centrosome/include")
+
         setuptools.command.build_ext.build_ext.build_extensions(self)
-
-
-class Clean(setuptools.Command):
-    def run(self):
-        return "ok"
 
 
 class Test(setuptools.command.test.test):
@@ -33,6 +31,7 @@ class Test(setuptools.command.test.test):
 
     def finalize_options(self):
         setuptools.command.test.test.finalize_options(self)
+
         self.test_args = []
 
         self.test_suite = True
@@ -77,6 +76,7 @@ setuptools.setup(
         "centrosome"
     ],
     install_requires=[
+        "numpy",
         "scipy",
     ],
     setup_requires=[
@@ -87,107 +87,43 @@ setuptools.setup(
         "pytest"
     ],
     cmdclass={
-        "build_ext": Build,
+        "build_ext": BuildExtension,
         "test": Test
     },
-    ext_modules=[
+    ext_modules=Cython.Build.cythonize([
         setuptools.Extension(
-            extra_compile_args=extra_compile_args,
-            extra_link_args=extra_link_args,
-            include_dirs=[
-                "centrosome/src",
-            ],
             name="_cpmorphology",
             sources=[
                 "centrosome/src/cpmorphology.c"
-            ],
+            ]
         ),
         setuptools.Extension(
-            extra_compile_args=extra_compile_args,
-            extra_link_args=extra_link_args,
-            name="_cpmorphology2",
-            sources=[
-                "centrosome/_cpmorphology2.pyx"
-            ],
-        ),
-        setuptools.Extension(
-            extra_compile_args=extra_compile_args,
-            extra_link_args=extra_link_args,
-            include_dirs=[
-                "centrosome/src",
-            ],
-            name="_watershed",
-            sources=[
-                "centrosome/_watershed.pyx",
-                "centrosome/heap_watershed.pxi",
-            ],
-        ),
-        setuptools.Extension(
-            extra_compile_args=extra_compile_args,
-            extra_link_args=extra_link_args,
-            include_dirs=[
-                "centrosome/src",
-            ],
             name="_propagate",
             sources=[
                 "centrosome/_propagate.pyx",
-                "centrosome/heap.pxi",
+                "centrosome/heap.pxi"
             ],
         ),
         setuptools.Extension(
-            extra_compile_args=extra_compile_args,
-            extra_link_args=extra_link_args,
-            include_dirs=[
-                "centrosome/src",
-            ],
-            name="_filter",
-            sources=[
-                "centrosome/_filter.pyx"
-            ],
-        ),
-        setuptools.Extension(
-            extra_compile_args=extra_compile_args,
-            extra_link_args=extra_link_args,
-            include_dirs=[
-                "centrosome/src",
-            ],
-            name="_lapjv",
-            sources=[
-                "centrosome/_lapjv.pyx"
-            ],
-        ),
-        setuptools.Extension(
-            extra_compile_args=extra_compile_args,
-            extra_link_args=extra_link_args,
-            include_dirs=[
-                "centrosome/src",
-            ],
-            name="_convex_hull",
-            sources=[
-                "centrosome/_convex_hull.pyx"
-            ],
-        ),
-        setuptools.Extension(
-            depends=[
-                "centrosome/include/fastemd_hat.hpp",
-                "centrosome/include/npy_helpers.hpp",
-                "centrosome/include/FastEMD/EMD_DEFS.hpp",
-                "centrosome/include/FastEMD/emd_hat.hpp",
-                "centrosome/include/FastEMD/emd_hat_impl.hpp",
-                "centrosome/include/FastEMD/flow_utils.hpp",
-                "centrosome/include/FastEMD/min_cost_flow.hpp",
-            ],
-            extra_compile_args=extra_compile_args,
-            extra_link_args=extra_link_args,
-            include_dirs=[
-                "centrosome/include",
-                "centrosome/include/FastEMD",
-            ],
-            language="c++",
             name="_fastemd",
             sources=[
-                "centrosome/_fastemd.pyx"
+                "centrosome/_fastemd.pyx",
             ],
-        )
-    ]
+            depends=[
+                "centrosome/include/fastemd_hat.hpp",
+                "centrosome/include/npy_helpers.hpp"
+            ] + glob.glob("centrosome/include/*.hpp"),
+            language="c++"
+        ),
+        setuptools.Extension(
+            name="*",
+            sources=[
+                "centrosome/*.pyx",
+            ],
+            include_dirs=[
+                "centrosome/include",
+            ],
+            language="c++",
+        ),
+    ]),
 )

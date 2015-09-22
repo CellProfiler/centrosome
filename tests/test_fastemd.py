@@ -15,7 +15,7 @@ Website: http://www.cellprofiler.org
 
 import numpy as np
 import unittest
-from centrosome.fastemd import *
+from centrosome._fastemd import *
 
 class TestFastEMD(unittest.TestCase):
     def check(
@@ -30,7 +30,7 @@ class TestFastEMD(unittest.TestCase):
             array_equal_test = np.testing.assert_array_equal
         else:
             self.fail("Unsupported dtype: %s" % repr(p.dtype))
-                             
+
         if flow_type == EMD_NO_FLOW:
             result = fn(p, q, c,
                         extra_mass_penalty=extra_mass_penalty,
@@ -44,7 +44,7 @@ class TestFastEMD(unittest.TestCase):
                         gd_metric=gd_metric)
             equal_test(result, expected_result)
             array_equal_test(f, expected_flow)
-            
+
     def test_01_01_no_flow(self):
         tests = (
             ([1, 1, 1, 1, 1],
@@ -77,15 +77,15 @@ class TestFastEMD(unittest.TestCase):
                        [9, 5],
                        [9, 6]], np.int32).T,
              1*1+2*5+(2*3+1*4)+4*5+5*6)
-            
+
         )
-        
-        for p, q, c, expected in tests:    
+
+        for p, q, c, expected in tests:
             self.check(np.array(p, np.int32),
                        np.array(q, np.int32),
                        np.array(c, np.int32),
                        expected)
-            
+
     def test_01_02_extra_default(self):
         self.check(
             np.array([1, 2, 3, 4, 5], np.int32),
@@ -96,7 +96,7 @@ class TestFastEMD(unittest.TestCase):
                       [10,  4],
                       [10,  6]], np.int32),
              1*1+2*5+(2*2+1*3)+4*4+5*6+5*10)
-        
+
     def test_01_03_threshold(self):
         self.check(
             np.array([1, 2, 3, 4, 5], np.int32),
@@ -108,7 +108,7 @@ class TestFastEMD(unittest.TestCase):
                       [10,  6]], np.int32),
              1*1+2*5+(2*2+1*3)+4*4+5*6+5*6,
              extra_mass_penalty=6)
-        
+
     def test_02_01_flow(self):
         tests = (
             ([1, 1, 1, 1, 1],
@@ -154,9 +154,9 @@ class TestFastEMD(unittest.TestCase):
               [2, 1],
               [0, 4],
               [0, 5]]).T)
-            
+
         )
-        
+
         for p, q, c, expected, expected_flow in tests:
             self.check(np.array(p, np.int32),
                        np.array(q, np.int32),
