@@ -1,0 +1,21 @@
+addons:
+    apt:
+        packages:
+            - python-scipy
+cache:
+    apt: true
+    directories:
+        - $HOME/.cache/pip
+language: python
+notifications:
+    email: false
+python:
+    - 2.7
+sudo: false
+virtualenv:
+    system_site_packages: true
+install:
+    - pip install -U pip wheel
+    - pip install -r requirements.txt
+script:
+    - python setup.py test

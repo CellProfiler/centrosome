@@ -1,8 +1,45 @@
-from distutils.core import setup, Extension
 import glob
 import sys
-import numpy
-from Cython.Distutils import build_ext
+import pkg_resources
+import setuptools
+import setuptools.command.build_ext
+import setuptools.command.test
+
+
+class Build(setuptools.command.build_ext.build_ext):
+    def build_extensions(self):
+        numpy_includes = pkg_resources.resource_filename("numpy", "core/include")
+
+        for extension in self.extensions:
+            if hasattr(extension, "include_dirs") and numpy_includes not in extension.include_dirs:
+                extension.include_dirs.append(numpy_includes)
+
+        setuptools.command.build_ext.build_ext.build_extensions(self)
+
+
+class Test(setuptools.command.test.test):
+    user_options = [
+        ("pytest-args=", "a", "Arguments to pass to py.test")
+    ]
+
+    def initialize_options(self):
+        setuptools.command.test.test.initialize_options(self)
+
+        self.pytest_args = []
+
+    def finalize_options(self):
+        setuptools.command.test.test.finalize_options(self)
+        self.test_args = []
+
+        self.test_suite = True
+
+    def run_tests(self):
+        import pytest
+
+        errno = pytest.main(self.pytest_args)
+
+        sys.exit(errno)
+
 
 if sys.platform.startswith('win'):
     extra_compile_args = None
@@ -13,137 +50,142 @@ else:
 
     extra_link_args = None
 
-setup(
+setuptools.setup(
     name='centrosome',
-    version='0.7.0',
-    description='',
-    long_description='',
-    url='',
-    author='',
-    author_email='',
-    license='MIT',
+    version="1.0.0",
+    description="",
+    long_description="",
+    url="https://github.com/CellProfiler/centrosome",
+    author="Allen Goodman",
+    author_email="agoodman@broadinstitute.org",
+    license="MIT",
     classifiers=[
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.6',
-        'Programming Language :: Python :: 2.7',
+        "Development Status :: 5 - Production/Stable",
+        "Operating System :: OS Independent",
+        "Intended Audience :: Science/Research",
+        "Topic :: Scientific/Engineering",
+        "Programming Language :: Python :: 2",
+        "Programming Language :: Python :: 2.6",
+        "Programming Language :: Python :: 2.7",
     ],
-    keywords='',
+    keywords="",
     packages=[
-        'centrosome'
+        "centrosome"
     ],
     install_requires=[
-        'Cython',
-        'numpy',
-        'scipy',
+        "scipy",
     ],
     extras_require={
-        'development': [
+        "development": [
 
         ],
-        'test': [
+        "test": [
 
         ]
     },
+    setup_requires=[
+        "cython",
+        "numpy",
+    ],
+    tests_require=[
+        "pytest"
+    ],
     cmdclass={
-        'build_ext': build_ext
+        "build_ext": Build,
+        "test": Test
     },
     ext_modules=[
-        Extension(
+        setuptools.Extension(
             extra_compile_args=extra_compile_args,
             extra_link_args=extra_link_args,
             include_dirs=[
-                'centrosome/src',
-                numpy.get_include(),
+                "centrosome/src",
             ],
-            name='_cpmorphology',
+            name="_cpmorphology",
             sources=[
-                'centrosome/src/cpmorphology.c'
+                "centrosome/src/cpmorphology.c"
             ],
         ),
-        Extension(
+        setuptools.Extension(
+            extra_compile_args=extra_compile_args,
+            extra_link_args=extra_link_args,
+            name="_cpmorphology2",
+            sources=[
+                "centrosome/_cpmorphology2.pyx"
+            ],
+        ),
+        setuptools.Extension(
             extra_compile_args=extra_compile_args,
             extra_link_args=extra_link_args,
             include_dirs=[
-                numpy.get_include(),
+                "centrosome/src",
             ],
-            name='_cpmorphology2',
+            name="_watershed",
             sources=[
-                'centrosome/_cpmorphology2.pyx'
+                "centrosome/_watershed.pyx",
+                "centrosome/heap_watershed.pxi",
             ],
         ),
-        Extension(
+        setuptools.Extension(
             extra_compile_args=extra_compile_args,
             extra_link_args=extra_link_args,
             include_dirs=[
-                'centrosome/src',
-                numpy.get_include(),
-            ], name='_watershed',
+                "centrosome/src",
+            ],
+            name='_propagate',
             sources=[
-                'centrosome/_watershed.pyx',
-                'centrosome/heap_watershed.pxi',
+                "centrosome/_propagate.pyx",
+                "centrosome/heap.pxi",
             ],
         ),
-        Extension(
+        setuptools.Extension(
             extra_compile_args=extra_compile_args,
             extra_link_args=extra_link_args,
             include_dirs=[
-                'centrosome/src',
-                numpy.get_include(),
-            ], name='_propagate',
+                "centrosome/src",
+            ],
+            name='_filter',
             sources=[
-                'centrosome/_propagate.pyx',
-                'centrosome/heap.pxi',
+                "centrosome/_filter.pyx"
             ],
         ),
-        Extension(
+        setuptools.Extension(
             extra_compile_args=extra_compile_args,
             extra_link_args=extra_link_args,
             include_dirs=[
-                'centrosome/src',
-                numpy.get_include(),
-            ], name='_filter',
+                "centrosome/src",
+            ],
+            name="_lapjv",
             sources=[
-                'centrosome/_filter.pyx'
+                "centrosome/_lapjv.pyx"
             ],
         ),
-        Extension(
+        setuptools.Extension(
             extra_compile_args=extra_compile_args,
             extra_link_args=extra_link_args,
             include_dirs=[
-                'centrosome/src',
-                numpy.get_include(),
-            ], name='_lapjv',
+                "centrosome/src",
+            ],
+            name="_convex_hull",
             sources=[
-                'centrosome/_lapjv.pyx'
+                "centrosome/_convex_hull.pyx"
             ],
         ),
-        Extension(
-            extra_compile_args=extra_compile_args,
-            extra_link_args=extra_link_args,
-            include_dirs=[
-                'centrosome/src',
-                numpy.get_include(),
-            ], name='_convex_hull',
-            sources=[
-                'centrosome/_convex_hull.pyx'
-            ],
-        ),
-        Extension(
+        setuptools.Extension(
             depends=[
-                'centrosome/include/fastemd_hat.hpp',
-                'centrosome/include/npy_helpers.hpp'
-            ] + glob.glob('centrosome/include/FastEMD/*.hpp'),
+                "centrosome/include/fastemd_hat.hpp",
+                "centrosome/include/npy_helpers.hpp"
+            ] + glob.glob("centrosome/include/FastEMD/*.hpp"),
             extra_compile_args=extra_compile_args,
             extra_link_args=extra_link_args,
             include_dirs=[
-                'centrosome/include',
-                'centrosome/include/FastEMD',
-                numpy.get_include(),
+                "centrosome/include",
+                "centrosome/include/FastEMD",
             ],
-            language='c++',
-            name='_fastemd',
+            language="c++",
+            name="_fastemd",
             sources=[
-                'centrosome/_fastemd.pyx'
+                "centrosome/_fastemd.pyx"
             ],
         )
     ]
