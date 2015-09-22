@@ -15,7 +15,10 @@ python:
 sudo: false
 virtualenv:
     system_site_packages: true
+before_install:
+    - pip install --upgrade pip
+    - pip install --upgrade wheel
 install:
-    - python setup.py build_ext
+    - pip install cython
 script:
     - python setup.py test

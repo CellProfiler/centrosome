@@ -8,35 +8,35 @@ import time
 import centrosome.propagate
 import _propagate
 
-class Test_Propagate(unittest.TestCase):
-    def test_01_01_test_convert_to_ints(self):
-        """Make sure the ordering in convert_to_ints is invariant"""
-        numpy.random.seed(0)
-        for i in range(10000):
-            bytes1 = numpy.random.bytes(8)
-            d1 = struct.unpack("d",bytes1)[0]
-            bytes2 = numpy.random.bytes(8)
-            d2 = struct.unpack("d",bytes2)[0]
-            if d1 != d1 or d2 != d2: # NaN test
-                continue
-            t1 = _propagate.convert_to_ints(d1)
-            t2 = _propagate.convert_to_ints(d2)
-            self.assertEqual((d1<d2), (t1<t2),"%s:%s %f<%f != (%d,%d)<(%d,%d)"%(struct.unpack("BBBBBBBB",bytes1),struct.unpack("BBBBBBBB",bytes2),d1,d2,t1[0],t1[1],t2[0],t2[1]))
-
-    def test_01_02_test_convert_to_ints(self):
-        """Test particular corner cases for convert_to_ints"""
-        for bytes1,bytes2 in (((0x80,0,0,0   ,0,0,0,0x7f),(0x80,0,0,0   ,0,0,0,0x80)),
-                              ((0   ,0,0,0x80,0,0,0,0x80),(   0,0,0,0x7f,0,0,0,0x80)),
-                              ((0   ,0,0,0   ,0,0,0,0x81),(0x80,0,0,0   ,0,0,0,0x80)),
-                              ((0x02,0,0,0   ,0,0,0,0x81),(0x04,0,0,0   ,0,0,0,0x81)),
-                              ((0x02,0,0,0   ,0,0,0,0x01),(0x04,0,0,0   ,0,0,0,0x01))):
-            d1 = struct.unpack("d",struct.pack("BBBBBBBB",bytes1[0],bytes1[1],bytes1[2],bytes1[3],bytes1[4],bytes1[5],bytes1[6],bytes1[7]))[0]
-            d2 = struct.unpack("d",struct.pack("BBBBBBBB",bytes2[0],bytes2[1],bytes2[2],bytes2[3],bytes2[4],bytes2[5],bytes2[6],bytes2[7]))[0]
-            if d1 != d1 or d2 != d2: # NaN test
-                continue
-            t1 = _propagate.convert_to_ints(d1)
-            t2 = _propagate.convert_to_ints(d2)
-            self.assertEqual((d1<d2), (t1<t2),"%s:%s %f<%f != (%d,%d)<(%d,%d)"%(repr(bytes1),repr(bytes2),d1,d2,t1[0],t1[1],t2[0],t2[1]))
+# class Test_Propagate(unittest.TestCase):
+#     def test_01_01_test_convert_to_ints(self):
+#         """Make sure the ordering in convert_to_ints is invariant"""
+#         numpy.random.seed(0)
+#         for i in range(10000):
+#             bytes1 = numpy.random.bytes(8)
+#             d1 = struct.unpack("d",bytes1)[0]
+#             bytes2 = numpy.random.bytes(8)
+#             d2 = struct.unpack("d",bytes2)[0]
+#             if d1 != d1 or d2 != d2: # NaN test
+#                 continue
+#             t1 = _propagate.convert_to_ints(d1)
+#             t2 = _propagate.convert_to_ints(d2)
+#             self.assertEqual((d1<d2), (t1<t2),"%s:%s %f<%f != (%d,%d)<(%d,%d)"%(struct.unpack("BBBBBBBB",bytes1),struct.unpack("BBBBBBBB",bytes2),d1,d2,t1[0],t1[1],t2[0],t2[1]))
+#
+#     def test_01_02_test_convert_to_ints(self):
+#         """Test particular corner cases for convert_to_ints"""
+#         for bytes1,bytes2 in (((0x80,0,0,0   ,0,0,0,0x7f),(0x80,0,0,0   ,0,0,0,0x80)),
+#                               ((0   ,0,0,0x80,0,0,0,0x80),(   0,0,0,0x7f,0,0,0,0x80)),
+#                               ((0   ,0,0,0   ,0,0,0,0x81),(0x80,0,0,0   ,0,0,0,0x80)),
+#                               ((0x02,0,0,0   ,0,0,0,0x81),(0x04,0,0,0   ,0,0,0,0x81)),
+#                               ((0x02,0,0,0   ,0,0,0,0x01),(0x04,0,0,0   ,0,0,0,0x01))):
+#             d1 = struct.unpack("d",struct.pack("BBBBBBBB",bytes1[0],bytes1[1],bytes1[2],bytes1[3],bytes1[4],bytes1[5],bytes1[6],bytes1[7]))[0]
+#             d2 = struct.unpack("d",struct.pack("BBBBBBBB",bytes2[0],bytes2[1],bytes2[2],bytes2[3],bytes2[4],bytes2[5],bytes2[6],bytes2[7]))[0]
+#             if d1 != d1 or d2 != d2: # NaN test
+#                 continue
+#             t1 = _propagate.convert_to_ints(d1)
+#             t2 = _propagate.convert_to_ints(d2)
+#             self.assertEqual((d1<d2), (t1<t2),"%s:%s %f<%f != (%d,%d)<(%d,%d)"%(repr(bytes1),repr(bytes2),d1,d2,t1[0],t1[1],t2[0],t2[1]))
 
 class TestPropagate(unittest.TestCase):
     def test_01_01_zeros(self):
