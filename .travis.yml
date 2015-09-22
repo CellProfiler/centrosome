@@ -6,19 +6,25 @@ addons:
 cache:
     apt: true
     directories:
-        - $HOME/.cache/pip
+        - "$HOME/.cache/pip"
+deploy:
+    on:
+        branch: master
+        repo: CellProfiler/centrosome
+        tags: true
+    password:
+        secure: lyjR5E4lJZehpvVFQtG+VxpWs508OjvuqbbRgnoGoK6ilglVxyyPKLPO33G6uj95ieVa49XnD9B2sWu+HA35bb15K7DAw70+dQ6BjOzBeM5QHC9clOsHtjg57yJ8eTp8fT4lNFEl2KY8ezHOGvCrhubZVSFUeMFbnr7TnhyfKLdGZEcs02Yi6FbgAAK16ofPLIF759z7ptx4gv4HlKQ/Xrnap67NRM7Piha9iIQ20M4Ziko+UKugGTuzF0zUawwVOgue3wK/BQ5shwd2K5cv4uqmYq54rCoeCd7+iUhvY2Q+2lFmag3XM9SHPHB4ermGIee3crcZqUBUBPRTwNzCoK7c7zKKE7wKEb20Nljs8BafNrxctSJSeMy9BRkfyCZfTkewWHOy9+pJF6EeNw82EeOeEQF/XWNIuVHN5f7xoyZjp+zXklen8kF9+UKbv7EaEHnDf4nERtN0xuCPMH8AhEkUQg3B/D9A0JR//0n0a333MiJVAOHaV2neWYnINfgNqmhYh0sYwYidVnEXtx2Zsfe+EMMzaZp9fYulP7Aa+ejsCvIRuyV6CMcAeUHhYoa6rE3JQRDH25FNqeYxdGaMZpk+GBsix2zVosrqXLmw3wHDue7J08sQM9s8JM/CWrfeIvETNL/2cYmngQKjqYLeYqV3FA3bubA/Zc0Wy8qE5uU=
+    provider: pypi
+    user: "0x00B1"
+install:
+    - pip install tox
 language: python
 notifications:
     email: false
 python:
     - 2.7
+script:
+    - tox .
 sudo: false
 virtualenv:
     system_site_packages: true
-install:
-    - pip install --upgrade pip
-    - pip install --upgrade wheel
-    - pip install --upgrade cython
-    - pip install --upgrade tox
-script:
-    - tox .
