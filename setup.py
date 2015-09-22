@@ -1,44 +1,9 @@
+import Cython.Build
 import pkg_resources
 import setuptools
 import setuptools.command.build_ext
 import setuptools.command.test
 import sys
-
-TEST = True
-
-try:
-    import Cython.Build
-except ImportError:
-    TEST = False
-
-EXTENSION = "pyx" if TEST else "c"
-
-EXTENSIONS = [
-    setuptools.Extension(
-        name="_cpmorphology",
-        sources=[
-            "centrosome/src/_cpmorphology.c",
-        ]
-    ),
-    setuptools.Extension(
-        name="_propagate",
-        sources=[
-            "centrosome/_propagate." + EXTENSION,
-        ],
-    ),
-    setuptools.Extension(
-        name="*",
-        language="c++",
-        sources=[
-            "centrosome/*." + EXTENSION,
-        ],
-    ),
-]
-
-if TEST:
-    import Cython.Build
-
-    EXTENSIONS = Cython.Build.cythonize(EXTENSIONS)
 
 
 class BuildExtension(setuptools.command.build_ext.build_ext):
@@ -80,40 +45,66 @@ class Test(setuptools.command.test.test):
 
 
 setuptools.setup(
-    name="centrosome",
-    version="1.0.0",
-    description="",
-    long_description="",
-    url="https://github.com/CellProfiler/centrosome",
     author="Allen Goodman",
     author_email="agoodman@broadinstitute.org",
-    license="MIT",
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Science/Research",
+        "License :: OSI Approved :: BSD License",
         "Operating System :: OS Independent",
+        "Programming Language :: C",
+        "Programming Language :: C++",
+        "Programming Language :: Cython",
         "Programming Language :: Python :: 2.6",
         "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 2",
+        "Topic :: Scientific/Engineering :: Bio-Informatics",
         "Topic :: Scientific/Engineering",
-    ],
-    keywords="",
-    packages=[
-        "centrosome"
-    ],
-    install_requires=[
-        "numpy",
-        "scipy",
-    ],
-    setup_requires=[
-        "numpy",
-    ],
-    tests_require=[
-        "pytest",
     ],
     cmdclass={
         "build_ext": BuildExtension,
         "test": Test
     },
-    ext_modules=EXTENSIONS,
+    description="",
+    ext_modules=Cython.Build.cythonize([
+        setuptools.Extension(
+            name="_cpmorphology",
+            sources=[
+                "centrosome/src/_cpmorphology.c",
+            ]
+        ),
+        setuptools.Extension(
+            name="_propagate",
+            sources=[
+                "centrosome/_propagate.pyx",
+            ],
+        ),
+        setuptools.Extension(
+            name="*",
+            language="c++",
+            sources=[
+                "centrosome/*.pyx",
+            ],
+        ),
+    ]),
+    install_requires=[
+        "numpy",
+        "scipy",
+    ],
+    keywords="",
+    license="BSD",
+    long_description="",
+    name="centrosome",
+    packages=[
+        "centrosome"
+    ],
+    setup_requires=[
+        "cython",
+        "numpy",
+    ],
+    tests_require=[
+        "pytest",
+    ],
+    url="https://github.com/CellProfiler/centrosome",
+    version="1.0.0",
 )
