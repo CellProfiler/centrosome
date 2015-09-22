@@ -18,15 +18,16 @@ deploy:
     provider: pypi
     user: "0x00B1"
 install:
-    - pip install --upgrade pip wheel
-    - pip install cython tox
+    - pip install --upgrade pip
+    - pip install --upgrade wheel
+    - pip install --upgrade cython
 language: python
 notifications:
     email: false
 python:
     - 2.7
 script:
-    - tox .
+    - python setup.py test
 sudo: false
 virtualenv:
     system_site_packages: true
