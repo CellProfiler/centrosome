@@ -1,9 +1,9 @@
 import glob
-import sys
 import pkg_resources
 import setuptools
 import setuptools.command.build_ext
 import setuptools.command.test
+import sys
 
 
 class Build(setuptools.command.build_ext.build_ext):
@@ -41,17 +41,17 @@ class Test(setuptools.command.test.test):
         sys.exit(errno)
 
 
-if sys.platform.startswith('win'):
+if sys.platform.startswith("win"):
     extra_compile_args = None
 
-    extra_link_args = ['/MANIFEST']
+    extra_link_args = ["/MANIFEST"]
 else:
-    extra_compile_args = ['-O3']
+    extra_compile_args = ["-O3"]
 
     extra_link_args = None
 
 setuptools.setup(
-    name='centrosome',
+    name="centrosome",
     version="1.0.0",
     description="",
     long_description="",
@@ -132,7 +132,7 @@ setuptools.setup(
             include_dirs=[
                 "centrosome/src",
             ],
-            name='_propagate',
+            name="_propagate",
             sources=[
                 "centrosome/_propagate.pyx",
                 "centrosome/heap.pxi",
@@ -144,7 +144,7 @@ setuptools.setup(
             include_dirs=[
                 "centrosome/src",
             ],
-            name='_filter',
+            name="_filter",
             sources=[
                 "centrosome/_filter.pyx"
             ],

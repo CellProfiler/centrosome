@@ -15,7 +15,6 @@ sudo: false
 virtualenv:
     system_site_packages: true
 install:
-    - pip install -U pip wheel
-    - pip install -r requirements.txt
+    - python setup.py build_ext
 script:
     - python setup.py test
