@@ -24,7 +24,6 @@ EXTENSIONS = [
         name="_propagate",
         sources=[
             "centrosome/_propagate." + EXTENSION,
-            "centrosome/heap.pxi",
         ],
     ),
     setuptools.Extension(

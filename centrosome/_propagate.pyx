@@ -16,7 +16,7 @@ ctypedef np.float64_t DTYPE_DOUBLE_t
 DTYPE_BOOL = np.int8
 ctypedef np.int8_t DTYPE_BOOL_t
 
-include "heap.pxi"
+from centrosome.heap cimport *
 
 cdef int little_endian_flag
 
