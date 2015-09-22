@@ -1,4 +1,3 @@
-import glob
 import pkg_resources
 import setuptools
 import setuptools.command.build_ext
@@ -15,6 +14,11 @@ class Build(setuptools.command.build_ext.build_ext):
                 extension.include_dirs.append(numpy_includes)
 
         setuptools.command.build_ext.build_ext.build_extensions(self)
+
+
+class Clean(setuptools.Command):
+    def run(self):
+        return "ok"
 
 
 class Test(setuptools.command.test.test):
@@ -61,12 +65,12 @@ setuptools.setup(
     license="MIT",
     classifiers=[
         "Development Status :: 5 - Production/Stable",
-        "Operating System :: OS Independent",
         "Intended Audience :: Science/Research",
-        "Topic :: Scientific/Engineering",
-        "Programming Language :: Python :: 2",
+        "Operating System :: OS Independent",
         "Programming Language :: Python :: 2.6",
         "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 2",
+        "Topic :: Scientific/Engineering",
     ],
     keywords="",
     packages=[
@@ -75,14 +79,6 @@ setuptools.setup(
     install_requires=[
         "scipy",
     ],
-    extras_require={
-        "development": [
-
-        ],
-        "test": [
-
-        ]
-    },
     setup_requires=[
         "cython",
         "numpy",
@@ -174,8 +170,13 @@ setuptools.setup(
         setuptools.Extension(
             depends=[
                 "centrosome/include/fastemd_hat.hpp",
-                "centrosome/include/npy_helpers.hpp"
-            ] + glob.glob("centrosome/include/FastEMD/*.hpp"),
+                "centrosome/include/npy_helpers.hpp",
+                "centrosome/include/FastEMD/EMD_DEFS.hpp",
+                "centrosome/include/FastEMD/emd_hat.hpp",
+                "centrosome/include/FastEMD/emd_hat_impl.hpp",
+                "centrosome/include/FastEMD/flow_utils.hpp",
+                "centrosome/include/FastEMD/min_cost_flow.hpp",
+            ],
             extra_compile_args=extra_compile_args,
             extra_link_args=extra_link_args,
             include_dirs=[
