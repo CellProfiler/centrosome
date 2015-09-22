@@ -8,6 +8,7 @@ cache:
     directories:
         - "$HOME/.cache/pip"
 deploy:
+    distributions: "sdist bdist_wheel"
     on:
         branch: master
         repo: CellProfiler/centrosome
@@ -17,7 +18,8 @@ deploy:
     provider: pypi
     user: "0x00B1"
 install:
-    - pip install tox
+    - pip install --upgrade pip wheel
+    - pip install cython tox
 language: python
 notifications:
     email: false
