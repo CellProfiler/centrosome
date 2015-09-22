@@ -8,7 +8,7 @@ cache:
     directories:
         - "$HOME/.cache/pip"
 deploy:
-    distributions: "sdist bdist_wheel"
+    distributions: sdist
     on:
         branch: master
         repo: CellProfiler/centrosome
