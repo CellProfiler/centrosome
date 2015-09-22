@@ -1,10 +1,46 @@
-import glob
 import pkg_resources
 import setuptools
 import setuptools.command.build_ext
 import setuptools.command.test
 import sys
-import Cython.Build
+
+TEST = True
+
+try:
+    import Cython.Build
+except ImportError:
+    TEST = False
+
+EXTENSION = "pyx" if TEST else "c"
+
+EXTENSIONS = [
+    setuptools.Extension(
+        name="_cpmorphology",
+        sources=[
+            "centrosome/src/_cpmorphology.c",
+        ]
+    ),
+    setuptools.Extension(
+        name="_propagate",
+        sources=[
+            "centrosome/_propagate." + EXTENSION,
+            "centrosome/heap.pxi",
+        ],
+    ),
+    setuptools.Extension(
+        name="*",
+        language="c++",
+        sources=[
+            "centrosome/*." + EXTENSION,
+        ],
+    ),
+]
+
+if TEST:
+    import Cython.Build
+
+    EXTENSIONS = Cython.Build.cythonize(EXTENSIONS)
+
 
 class BuildExtension(setuptools.command.build_ext.build_ext):
     def build_extensions(self):
@@ -44,15 +80,6 @@ class Test(setuptools.command.test.test):
         sys.exit(errno)
 
 
-if sys.platform.startswith("win"):
-    extra_compile_args = None
-
-    extra_link_args = ["/MANIFEST"]
-else:
-    extra_compile_args = ["-O3"]
-
-    extra_link_args = None
-
 setuptools.setup(
     name="centrosome",
     version="1.0.0",
@@ -80,50 +107,14 @@ setuptools.setup(
         "scipy",
     ],
     setup_requires=[
-        "cython",
         "numpy",
     ],
     tests_require=[
-        "pytest"
+        "pytest",
     ],
     cmdclass={
         "build_ext": BuildExtension,
         "test": Test
     },
-    ext_modules=Cython.Build.cythonize([
-        setuptools.Extension(
-            name="_cpmorphology",
-            sources=[
-                "centrosome/src/cpmorphology.c"
-            ]
-        ),
-        setuptools.Extension(
-            name="_propagate",
-            sources=[
-                "centrosome/_propagate.pyx",
-                "centrosome/heap.pxi"
-            ],
-        ),
-        setuptools.Extension(
-            name="_fastemd",
-            sources=[
-                "centrosome/_fastemd.pyx",
-            ],
-            depends=[
-                "centrosome/include/fastemd_hat.hpp",
-                "centrosome/include/npy_helpers.hpp"
-            ] + glob.glob("centrosome/include/*.hpp"),
-            language="c++"
-        ),
-        setuptools.Extension(
-            name="*",
-            sources=[
-                "centrosome/*.pyx",
-            ],
-            include_dirs=[
-                "centrosome/include",
-            ],
-            language="c++",
-        ),
-    ]),
+    ext_modules=EXTENSIONS,
 )

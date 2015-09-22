@@ -18,7 +18,8 @@ virtualenv:
 before_install:
     - pip install --upgrade pip
     - pip install --upgrade wheel
+    - pip install --upgrade cython
 install:
-    - pip install cython
+    - pip install -e .
 script:
     - python setup.py test

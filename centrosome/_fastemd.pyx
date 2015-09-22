@@ -1,3 +1,5 @@
+# setuptools: language = c++
+
 from numpy cimport *
 from libcpp.vector cimport vector
 import numpy as np
