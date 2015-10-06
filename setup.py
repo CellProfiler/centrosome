@@ -101,6 +101,7 @@ setuptools.setup(
     setup_requires=[
         "cython",
         "numpy",
+        "pytest",
     ],
     tests_require=[
         "pytest",

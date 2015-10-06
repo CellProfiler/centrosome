@@ -6,7 +6,8 @@ addons:
 cache:
     apt: true
     directories:
-        - "$HOME/.cache/pip"
+        - $HOME/.cache/pip
+        - $TRAVIS_BUILD_DIR/.tox
 deploy:
     distributions: sdist
     on:
@@ -21,13 +22,14 @@ install:
     - pip install --upgrade pip
     - pip install --upgrade wheel
     - pip install --upgrade cython
+    - pip install --upgrade tox
 language: python
 notifications:
     email: false
 python:
     - 2.7
 script:
-    - python setup.py test
+    - tox
 sudo: false
 virtualenv:
     system_site_packages: true
