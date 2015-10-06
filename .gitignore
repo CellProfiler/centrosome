@@ -2,9 +2,11 @@ __pycache__
 .cache
 .eggs
 .idea
+.tox
 *.so
 build
 centrosome.egg-info/
 centrosome/*.c
 centrosome/*.cpp
 centrosome/*.pyc
+dist
