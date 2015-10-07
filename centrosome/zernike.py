@@ -3,7 +3,6 @@ import scipy.sparse
 import scipy.ndimage
 
 from centrosome.cpmorphology import minimum_enclosing_circle,fixup_scipy_ndimage_result
-from centrosome.cpmorphology import fill_labeled_holes,draw_line
 
 
 def construct_zernike_lookuptable(zernike_indexes):

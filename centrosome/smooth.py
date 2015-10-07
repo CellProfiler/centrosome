@@ -36,7 +36,6 @@ def smooth_with_function_and_mask(image, function, mask):
     fraction, so you can recalibrate by dividing by the function on the mask
     to recover the effect of smoothing from just the significant pixels.
     """
-    not_mask               = np.logical_not(mask)
     bleed_over             = function(mask.astype(float))
     masked_image           = np.zeros(image.shape, image.dtype)
     masked_image[mask]     = image[mask]

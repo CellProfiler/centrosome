@@ -49,7 +49,6 @@ def stretch(image, mask=None):
         else:
             transformed_image = ((significant_pixels - minval) /
                                  (maxval - minval))
-        result = image.copy()
         image[mask] = transformed_image
         return image
 
@@ -422,7 +421,6 @@ def canny(image, mask, sigma, low_threshold, high_threshold):
     c1 = magnitude[:,:-1][pts[:,1:]]
     c2 = magnitude[1:,:-1][pts[:-1,1:]]
     c_minus =  c2 * w + c1 * (1.0-w) <= m
-    cc = np.logical_and(c_plus,c_minus)
     local_maxima[pts] = np.logical_and(c_plus, c_minus)
     #----- 135 to 180 degrees ------
     # Mix anti-diagonal and anti-horizontal
@@ -1100,8 +1098,6 @@ def kalman_filter(kalman_state, old_indices, coordinates, q, r):
             noise_var[:, i] = fix(scind.variance(all_state_noise[:, i],
                                                  all_state_noise_idx,
                                                  idx))
-        obs_vec = dot_n(kalman_state.observation_matrix, 
-                        state_vec[:,:,np.newaxis])[:,:,0]
         kalman_state = KalmanState(kalman_state.observation_matrix,
                                    kalman_state.translation_matrix,
                                    state_vec, state_cov, noise_var, 
@@ -1121,7 +1117,6 @@ def kalman_filter(kalman_state, old_indices, coordinates, q, r):
         # The COV for the hidden, undetermined features should be large
         # and the COV for others should be small
         #
-        nstates = kalman_state.state_len
         nnew_features = len(new_indices)
         cov_vec = SMALL_KALMAN_COV / np.dot(observation_matrix_t, 
                                             np.ones(kalman_state.obs_len))

@@ -173,9 +173,7 @@ def spline_matrix2d(x,y,px,py,mask=None):
     '''For boundary constraints, the first two and last two spline pieces are constrained
 to be part of the same cubic curve.'''
     V = np.kron(spline_matrix(x,px),spline_matrix(y,py))
-    
-    lenV = len(V)
-    
+
     if mask is not None:
         indices = np.nonzero(mask.T.flatten())
         if len(indices)>1:

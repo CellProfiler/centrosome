@@ -147,8 +147,6 @@ class TestZernike(unittest.TestCase):
         for points in range(4,12): 
             labels = np.zeros((101,101),int)
             coords = np.random.uniform(low=min,high=max,size=(points,2)).astype(int)
-            angles = np.array([np.arctan2(y[yi,xi],x[yi,xi]) for xi,yi in coords])
-            order = np.argsort(angles)
             for i in range(points-1):
                 draw_line(labels,coords[i],coords[i+1])
             draw_line(labels,coords[i],coords[0])
@@ -178,8 +176,6 @@ class TestZernike(unittest.TestCase):
         for points in range(4,12): 
             labels = np.zeros((41,41),int)
             coords = np.random.uniform(low=min,high=max,size=(points,2)).astype(int)
-            angles = np.array([np.arctan2(y[yi,xi],x[yi,xi]) for xi,yi in coords])
-            order = np.argsort(angles)
             for i in range(points-1):
                 draw_line(labels,coords[i],coords[i+1])
             draw_line(labels,coords[i],coords[0])

@@ -13,25 +13,24 @@ Please see the AUTHORS file for credits.
 Website: http://www.cellprofiler.org
 """
 
-import numpy as np
 import unittest
-from centrosome._fastemd import *
+import centrosome._fastemd
 
 class TestFastEMD(unittest.TestCase):
     def check(
         self, p, q, c, expected_result,
         expected_flow = None,
         extra_mass_penalty = None,
-        flow_type = EMD_NO_FLOW,
+        flow_type = centrosome._fastemd.EMD_NO_FLOW,
         gd_metric = False):
-        if p.dtype == np.int32:
-            fn = emd_hat_int32
+        if p.dtype == centrosome._fastemd.np.int32:
+            fn = centrosome._fastemd.emd_hat_int32
             equal_test = self.assertEqual
-            array_equal_test = np.testing.assert_array_equal
+            array_equal_test = centrosome._fastemd.np.testing.assert_array_equal
         else:
             self.fail("Unsupported dtype: %s" % repr(p.dtype))
 
-        if flow_type == EMD_NO_FLOW:
+        if flow_type == centrosome._fastemd.EMD_NO_FLOW:
             result = fn(p, q, c,
                         extra_mass_penalty=extra_mass_penalty,
                         flow_type=flow_type,
@@ -49,10 +48,10 @@ class TestFastEMD(unittest.TestCase):
         tests = (
             ([1, 1, 1, 1, 1],
              [1, 1, 1, 1, 1],
-             np.zeros((5, 5), np.int32), 0),
+             centrosome._fastemd.np.zeros((5, 5), centrosome._fastemd.np.int32), 0),
             ([1, 1, 1, 1, 1],
              [1, 1, 1, 1, 1],
-             2 - np.eye(5, dtype=np.int32), 5),
+             2 - centrosome._fastemd.np.eye(5, dtype=centrosome._fastemd.np.int32), 5),
             ([1, 2, 3, 4, 5],
              [3, 3, 3, 3, 3],
              [[1, 9, 9, 9, 9],
@@ -71,41 +70,41 @@ class TestFastEMD(unittest.TestCase):
              1*1+2*5+(2*3+1*4)+4*5+5*6),
             ([5, 10],
              [1, 2, 3, 4, 5],
-             np.array([[1, 9],
+             centrosome._fastemd.np.array([[1, 9],
                        [5, 9],
                        [3, 4],
                        [9, 5],
-                       [9, 6]], np.int32).T,
+                       [9, 6]], centrosome._fastemd.np.int32).T,
              1*1+2*5+(2*3+1*4)+4*5+5*6)
 
         )
 
         for p, q, c, expected in tests:
-            self.check(np.array(p, np.int32),
-                       np.array(q, np.int32),
-                       np.array(c, np.int32),
+            self.check(centrosome._fastemd.np.array(p, centrosome._fastemd.np.int32),
+                       centrosome._fastemd.np.array(q, centrosome._fastemd.np.int32),
+                       centrosome._fastemd.np.array(c, centrosome._fastemd.np.int32),
                        expected)
 
     def test_01_02_extra_default(self):
         self.check(
-            np.array([1, 2, 3, 4, 5], np.int32),
-            np.array([5, 15], np.int32),
-            np.array([[ 1, 10],
+            centrosome._fastemd.np.array([1, 2, 3, 4, 5], centrosome._fastemd.np.int32),
+            centrosome._fastemd.np.array([5, 15], centrosome._fastemd.np.int32),
+            centrosome._fastemd.np.array([[ 1, 10],
                       [ 5, 10],
                       [ 2,  3],
                       [10,  4],
-                      [10,  6]], np.int32),
+                      [10,  6]], centrosome._fastemd.np.int32),
              1*1+2*5+(2*2+1*3)+4*4+5*6+5*10)
 
     def test_01_03_threshold(self):
         self.check(
-            np.array([1, 2, 3, 4, 5], np.int32),
-            np.array([5, 15], np.int32),
-            np.array([[ 1, 10],
+            centrosome._fastemd.np.array([1, 2, 3, 4, 5], centrosome._fastemd.np.int32),
+            centrosome._fastemd.np.array([5, 15], centrosome._fastemd.np.int32),
+            centrosome._fastemd.np.array([[ 1, 10],
                       [ 5, 10],
                       [ 2,  3],
                       [10,  4],
-                      [10,  6]], np.int32),
+                      [10,  6]], centrosome._fastemd.np.int32),
              1*1+2*5+(2*2+1*3)+4*4+5*6+5*6,
              extra_mass_penalty=6)
 
@@ -113,8 +112,8 @@ class TestFastEMD(unittest.TestCase):
         tests = (
             ([1, 1, 1, 1, 1],
              [1, 1, 1, 1, 1],
-             2 - np.eye(5, dtype=np.int32), 5,
-             np.eye(5, dtype=np.int32)),
+             2 - centrosome._fastemd.np.eye(5, dtype=centrosome._fastemd.np.int32), 5,
+             centrosome._fastemd.np.eye(5, dtype=centrosome._fastemd.np.int32)),
             ([1, 2, 3, 4, 5],
              [3, 3, 3, 3, 3],
              [[1, 9, 9, 9, 9],
@@ -143,13 +142,13 @@ class TestFastEMD(unittest.TestCase):
               [0, 5]]),
             ([5, 10],
              [1, 2, 3, 4, 5],
-             np.array([[1, 9],
+             centrosome._fastemd.np.array([[1, 9],
                        [5, 9],
                        [3, 4],
                        [9, 5],
-                       [9, 6]], np.int32).T,
+                       [9, 6]], centrosome._fastemd.np.int32).T,
              1*1+2*5+(2*3+1*4)+4*5+5*6,
-             np.array([[1, 0],
+             centrosome._fastemd.np.array([[1, 0],
               [2, 0],
               [2, 1],
               [0, 4],
@@ -158,11 +157,11 @@ class TestFastEMD(unittest.TestCase):
         )
 
         for p, q, c, expected, expected_flow in tests:
-            self.check(np.array(p, np.int32),
-                       np.array(q, np.int32),
-                       np.array(c, np.int32),
+            self.check(centrosome._fastemd.np.array(p, centrosome._fastemd.np.int32),
+                       centrosome._fastemd.np.array(q, centrosome._fastemd.np.int32),
+                       centrosome._fastemd.np.array(c, centrosome._fastemd.np.int32),
                        expected,
-                       expected_flow = np.array(expected_flow),
-                       flow_type=EMD_WITHOUT_EXTRA_MASS_FLOW)
+                       expected_flow = centrosome._fastemd.np.array(expected_flow),
+                       flow_type=centrosome._fastemd.EMD_WITHOUT_EXTRA_MASS_FLOW)
         
         

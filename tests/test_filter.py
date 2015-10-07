@@ -1,6 +1,6 @@
 import base64
 import numpy as np
-from scipy.ndimage import binary_dilation, binary_erosion, convolve
+from scipy.ndimage import binary_dilation, binary_erosion
 import unittest
 
 import centrosome.filter as F
@@ -73,11 +73,6 @@ class TestMedianFilter(unittest.TestCase):
         Regression test of IMG-1029'''
         result = F.median_filter(np.zeros((10,10)), np.zeros((10,10), bool), 3)
         self.assertTrue(np.all(result == 0))
-        
-    def test_00_02_all_but_one_masked(self):
-        mask = np.zeros((10,10), bool)
-        mask[5,5] = True
-        result = F.median_filter(np.zeros((10,10)), mask, 3)
     
     def test_01_01_mask(self):
         '''The median filter, masking a single value'''
@@ -1739,7 +1734,6 @@ class TestCircularHough(unittest.TestCase):
     def test_01_02_circle(self):
         i,j = np.mgrid[-15:16,-15:16]
         circle = np.abs(np.sqrt(i*i+j*j) - 6) <= 1.5
-        expected = convolve(circle.astype(float), circle.astype(float)) / np.sum(circle)
         img = F.circular_hough(circle, 6)
         self.assertEqual(img[15,15], 1)
         self.assertTrue(np.all(img[np.abs(np.sqrt(i*i+j*j) - 6) < 1.5] < .25))

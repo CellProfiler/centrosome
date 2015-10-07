@@ -30,7 +30,6 @@ def lapjv(i, j, costs, wants_dual_variables = False, augmenting_row_reductions =
     returns (x, y), the pairs of assignments that represent the solution
     or (x, y, u, v) if the dual variables are requested.
     '''
-    import os
     i = np.atleast_1d(i).astype(int)
     j = np.atleast_1d(j).astype(int)
     costs = np.atleast_1d(costs)

@@ -1,4 +1,4 @@
-from _heapq import heapify, heappush, heappop
+from _heapq import heapify
 import numpy
 import scipy.ndimage
 from centrosome.rankorder import rank_order
@@ -137,7 +137,6 @@ def watershed(image, markers, connectivity=None, offset=None, mask=None):
         indexes = []
         ignore = True
         for j in range(c_connectivity.ndim):
-            elems = c_image.shape[j]
             idx   = (i / multiplier) % c_connectivity.shape[j]
             off   = idx - offset[j]
             if off:

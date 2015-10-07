@@ -20,19 +20,15 @@ class TestMode(unittest.TestCase):
         self.assertIn(3, result)
         
     def test_02_01_timeit(self):
-        try:
-            import timeit
-            from scipy.stats import mode as scipy_mode
-        except:
-            pass
-        else:
-            setup = ("import numpy as np;"
-                     "from centrosome.mode import mode;"
-                     "from scipy.stats import mode as scipy_mode;"
-                     "r = np.random.RandomState(55);"
-                     "a = r.randint(0, 10, size=(100000));")
-            scipy_time = timeit.timeit("scipy_mode(a)", setup, number = 10)
-            my_time = timeit.timeit("mode(a)", setup, number = 10)
-            self.assertLess(my_time, scipy_time)
-            logger.info("centrosome.mode.mode=%f sec" % my_time)
-            logger.info("scipy.stats.mode=%f sec" % scipy_time)
+        import timeit
+
+        setup = ("import numpy as np;"
+                 "from centrosome.mode import mode;"
+                 "from scipy.stats import mode as scipy_mode;"
+                 "r = np.random.RandomState(55);"
+                 "a = r.randint(0, 10, size=(100000));")
+        scipy_time = timeit.timeit("scipy_mode(a)", setup, number = 10)
+        my_time = timeit.timeit("mode(a)", setup, number = 10)
+        self.assertLess(my_time, scipy_time)
+        logger.info("centrosome.mode.mode=%f sec" % my_time)
+        logger.info("scipy.stats.mode=%f sec" % scipy_time)
