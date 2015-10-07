@@ -89,6 +89,7 @@ setuptools.setup(
     ]),
     install_requires=[
         "numpy",
+        "scikit-image",
         "scipy",
     ],
     keywords="",
