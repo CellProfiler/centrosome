@@ -355,10 +355,3 @@ def slow_augment(n, ii, jj, idx, count, x, y, u, v, c):
     for i in range(n):
         j = x[i]
         u[i] = c[i,j] - v[j]
-        
-if __name__=="__main__":
-    i = np.load("c:/temp/bad/img-1557/i.npy")
-    j = np.load("c:/temp/bad/img-1557/j.npy")
-    costs = np.load("c:/temp/bad/img-1557/c.npy")
-    lapjv(i, j, costs)
-    
