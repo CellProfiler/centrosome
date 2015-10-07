@@ -409,29 +409,3 @@ def bg_compensate(img, sigma, splinepoints, scale):
     pylab.subplot(1,3,2).imshow(img - bg, cmap=matplotlib.cm.Greys_r)
     pylab.subplot(1,3,3).imshow(bg, cmap=matplotlib.cm.Greys_r)
     pylab.show()
-
-if __name__=="__main__":
-    import pylab
-    import sys
-    import threading
-    import wx
-    
-    class App(wx.App):
-        def OnInit(self):
-            pylab.figure()
-            self.Bind(wx.EVT_IDLE, self.on_idle)
-            return True
-        def on_idle(self, event):
-            pylab.draw()
-            
-    app = App(False)
-    def run(filename=sys.argv[1], sigma=float(sys.argv[2]), 
-            splinepoints = float(sys.argv[3]), scale = float(sys.argv[4])):
-        bg_compensate(filename, sigma, splinepoints, scale)
-        
-    t = threading.Thread(target=run)
-    t.start()
-    app.MainLoop()
-else:
-    __all__ = (backgr, MODE_AUTO, MODE_BRIGHT, MODE_DARK, MODE_GRAY)
-    
