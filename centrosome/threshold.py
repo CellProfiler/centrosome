@@ -169,7 +169,7 @@ def get_global_threshold(threshold_method, image, mask = None, **kwargs):
         fn = get_maximum_correlation_threshold
     else:
         raise NotImplementedError("%s algorithm not implemented"%(threshold_method))
-    kwargs = dict([(k, v) for k, v in kwargs.items()
+    kwargs = dict([(k, v) for k, v in list(kwargs.items())
                    if k in fn.args])
     return fn(image, mask, **kwargs)
 
@@ -259,7 +259,7 @@ def get_per_object_threshold(method, image, threshold, mask=None, labels=None,
             labels[np.logical_not(mask)] = 0 
     label_extents = scipy.ndimage.find_objects(labels,np.max(labels))
     local_threshold = np.ones(image.shape,image.dtype)
-    for i,extent in zip(range(1,len(label_extents)+1),label_extents):
+    for i,extent in zip(list(range(1,len(label_extents)+1)),label_extents):
         label_mask = labels[extent]==i
         if not mask is None:
             label_mask = np.logical_and(mask[extent], label_mask)
@@ -406,7 +406,7 @@ def get_mog_threshold(image, mask=None, object_fraction = 0.2):
     # Construct an equally spaced array of values between the background
     # and object mean
     ndivisions = 10000
-    level = (np.array(range(ndivisions)) *
+    level = (np.array(list(range(ndivisions))) *
              ((class_mean[2]-class_mean[0]) / ndivisions)
              + class_mean[0])
     class_gaussian = np.ndarray((ndivisions,class_count))
@@ -595,7 +595,7 @@ def get_kapur_threshold(image, mask=None):
                                         max_log_image,
                                         256)
     histogram_values = (min_log_image + (max_log_image - min_log_image)*
-                        np.array(range(256),float) / 255)
+                        np.array(list(range(256)),float) / 255)
     # drop any zero bins
     keep = histogram != 0
     histogram = histogram[keep]
@@ -809,7 +809,7 @@ def inverse_log_transform(image, d):
 
 def numpy_histogram(a, bins=10, range=None, normed=False, weights=None):
     '''A version of numpy.histogram that accounts for numpy's version'''
-    args = inspect.getargs(np.histogram.func_code)[0]
+    args = inspect.getargs(np.histogram.__code__)[0]
     if args[-1] == "new":
         return np.histogram(a, bins, range, normed, weights, new=True)
     return np.histogram(a, bins, range, normed, weights)

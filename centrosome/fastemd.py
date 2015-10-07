@@ -37,5 +37,5 @@ booktitle = {ICCV},
 year = {2009}
 }
 """
-from _fastemd import EMD_NO_FLOW, EMD_WITHOUT_TRANSHIPMENT_FLOW,\
+from ._fastemd import EMD_NO_FLOW, EMD_WITHOUT_TRANSHIPMENT_FLOW,\
      EMD_WITHOUT_EXTRA_MASS_FLOW, emd_hat_int32

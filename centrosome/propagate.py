@@ -1,6 +1,6 @@
 import numpy as np
 
-import _propagate
+from . import _propagate
 
 def propagate(image, labels, mask, weight):
     """Propagate the labels to the nearest pixels

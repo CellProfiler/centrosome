@@ -17,7 +17,7 @@ def construct_zernike_lookuptable(zernike_indexes):
     factorial[1:] = np.cumproduct(np.arange(1, 100).astype(float))
     width = int(np.max(zernike_indexes[:,0]) / 2+1)
     lut = np.zeros((zernike_indexes.shape[0],width))
-    for idx,(n,m) in zip(range(zernike_indexes.shape[0]),zernike_indexes):
+    for idx,(n,m) in zip(list(range(zernike_indexes.shape[0])),zernike_indexes):
         for k in range(0,(n-m)/2+1):
             lut[idx,k] = \
                 (((-1)**k) * factorial[n-k] /
@@ -49,9 +49,9 @@ def construct_zernike_polynomials(x,y,zernike_indexes,mask=None):
     zf = np.zeros((x.shape[0], nzernikes), np.complex)
     s = np.zeros(x.shape,np.complex)
     exp_terms = {}
-    for idx,(n,m) in zip(range(nzernikes), zernike_indexes):
+    for idx,(n,m) in zip(list(range(nzernikes)), zernike_indexes):
         s[:]=0
-        if not exp_terms.has_key(m):
+        if m not in exp_terms:
             exp_terms[m] = np.exp(1j*m*phi)
         exp_term = exp_terms[m]
         for k in range((n-m)/2+1):

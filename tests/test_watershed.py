@@ -66,7 +66,7 @@ class TestFastWatershed(unittest.TestCase):
                       [-1,  1,  1,  1,  1,  1, -1],
                       [-1, -1, -1, -1, -1, -1, -1],
                       [-1, -1, -1, -1, -1, -1, -1]], out)
-        self.failUnless(error < eps)
+        self.assertTrue(error < eps)
 
     def test_watershed02(self):
         "watershed 2"
@@ -105,7 +105,7 @@ class TestFastWatershed(unittest.TestCase):
                       [-1, -1,  1,  1,  1, -1, -1],
                       [-1, -1, -1, -1, -1, -1, -1],
                       [-1, -1, -1, -1, -1, -1, -1]], out)
-        self.failUnless(error < eps)
+        self.assertTrue(error < eps)
 
     def test_watershed03(self):
         "watershed 3"
@@ -141,7 +141,7 @@ class TestFastWatershed(unittest.TestCase):
                       [-1, -1, -1, -1, -1, -1, -1],
                       [-1, -1, -1, -1, -1, -1, -1],
                       [-1, -1, -1, -1, -1, -1, -1]], out)
-        self.failUnless(error < eps)
+        self.assertTrue(error < eps)
 
     def test_watershed04(self):
         "watershed 4"
@@ -177,7 +177,7 @@ class TestFastWatershed(unittest.TestCase):
                       [-1, -1, -1, -1, -1, -1, -1],                      
                       [-1, -1, -1, -1, -1, -1, -1],                      
                       [-1, -1, -1, -1, -1, -1, -1]], out)
-        self.failUnless(error < eps)
+        self.assertTrue(error < eps)
 
     def test_watershed05(self):
         "watershed 5"
@@ -213,7 +213,7 @@ class TestFastWatershed(unittest.TestCase):
                       [-1, -1, -1, -1, -1, -1, -1],
                       [-1, -1, -1, -1, -1, -1, -1],
                       [-1, -1, -1, -1, -1, -1, -1]], out)
-        self.failUnless(error < eps)
+        self.assertTrue(error < eps)
 
     def test_watershed06(self):
         "watershed 6"
@@ -246,7 +246,7 @@ class TestFastWatershed(unittest.TestCase):
                       [-1, -1, -1, -1, -1, -1, -1],
                       [-1, -1, -1, -1, -1, -1, -1],
                       [-1, -1, -1, -1, -1, -1, -1]], out)
-        self.failUnless(error < eps)
+        self.assertTrue(error < eps)
 
     def test_watershed07(self):
         "A regression test of a competitive case that failed"
@@ -339,11 +339,11 @@ class TestFastWatershed(unittest.TestCase):
         before = time.clock() 
         out = fast_watershed(image,markers,self.eight)
         elapsed = time.clock()-before
-        print "Fast watershed ran a megapixel image in %f seconds"%(elapsed)
+        print("Fast watershed ran a megapixel image in %f seconds"%(elapsed))
         before = time.clock()
         out = scipy.ndimage.watershed_ift(image.astype(numpy.uint16), markers, self.eight)
         elapsed = time.clock()-before
-        print "Scipy watershed ran a megapixel image in %f seconds"%(elapsed)
+        print("Scipy watershed ran a megapixel image in %f seconds"%(elapsed))
 
     def test_watershed10(self):
         # https://github.com/scikit-image/scikit-image/issues/803
