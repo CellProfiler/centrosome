@@ -1,6 +1,7 @@
 addons:
     apt:
         packages:
+            - python-matplotlib
             - python-numpy
             - python-scipy
 cache:
