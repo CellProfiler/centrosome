@@ -235,23 +235,3 @@ class Haralick(object):
         return [self.H1(), self.H2(), self.H3(), self.H4(), self.H5(),
                 self.H6(), self.H7(), self.H8(), self.H9(), self.H10(),
                 self.H11(), self.H12(), self.H13()]
-
-if False: # __name__ == '__main__':
-    from PIL import Image
-    import scipy.ndimage
-    im = Image.open('/Users/ljosa/research/asr/ExampleSBSImages/Channel1-89-H-05.tif')
-    im = im.convert('L')
-    image = np.fromstring(im.tostring(), 'u1')
-    image.shape = im.size[1], im.size[0]
-    mask = image > 30
-    labels = scipy.ndimage.label(mask)[0]
-    h = Haralick(image, labels, 3)
-    print h
-
-if __name__ == '__main__':
-    gray = np.array([[0,0,1,1],[0,0,1,1],[0,2,2,2],[2,2,3,3]], dtype=float)
-    labels = np.ones((4,4))
-    labels = np.array([[0,0,0,0],[0,0,0,1],[0,0,1,1],[0,1,1,1]])
-    P = cooccurrence(gray, labels, 1)
-
-
