@@ -330,7 +330,6 @@ def get_mog_threshold(image, mask=None, object_fraction = 0.2):
         return 1
     if np.max(cropped_image)==np.min(cropped_image):
         return cropped_image[0]
-    number_of_classes = 3
     if pixel_count > max_count:
         np.random.seed(0)
         pixel_indices = np.random.permutation(pixel_count)[:max_count]

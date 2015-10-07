@@ -1,12 +1,10 @@
 __version__ = '$Revision$'
 
 import numpy
-import struct
 import unittest
 import time
 
 import centrosome.propagate
-import _propagate
 
 # class Test_Propagate(unittest.TestCase):
 #     def test_01_01_test_convert_to_ints(self):

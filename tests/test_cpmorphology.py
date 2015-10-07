@@ -7,7 +7,6 @@ import scipy.io.matlab
 
 import centrosome.cpmorphology as morph
 from centrosome.cpmorphology import fixup_scipy_ndimage_result as fix
-from centrosome.filter import permutations
 
         
 class TestFillLabeledHoles(unittest.TestCase):
@@ -152,18 +151,6 @@ class TestFillLabeledHoles(unittest.TestCase):
             [ 0, 0, 0, 0, 0, 0, 0, 0 ]])
         result = morph.fill_labeled_holes(labels)
         self.assertTrue(np.all(labels == result))
-        
-    def test_12_too_many_objects(self):
-        # Regression test of issue # 352 - code failed if
-        # more than 64K objects in background 4-labeling
-        #
-        # Create a checkerboard image. The 4-labeling will have > 64K
-        # labels.
-        #
-        i, j = np.mgrid[0:513, 0:513]
-        labels = (i % 2) != (j % 2)
-        # Program would segfault within this call
-        result = morph.fill_labeled_holes(labels)
     
     def test_13_issue_1116(self):
         # Regression test of issue # 1116. Object 727 is next to 762, but 762
@@ -1149,10 +1136,6 @@ class TestEllipseFromSecondMoments(unittest.TestCase):
         
 
 class TestCalculateExtents(unittest.TestCase):
-    def test_00_00_zeros(self):
-        """Make sure calculate_extents doesn't throw an exception if no image"""
-        extents = morph.calculate_extents(np.zeros((10,10),int), [1])
-    
     def test_01_01_square(self):
         """A square should have an extent of 1"""
         labels = np.zeros((10,10),int)

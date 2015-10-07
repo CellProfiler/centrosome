@@ -133,11 +133,9 @@ class TestLAPJV(unittest.TestCase):
                 j = j.flatten()
                 x,y,u,v = LAPJV.lapjv(i, j, c.flatten(), True, reductions)
                 min_cost = np.sum(c)
-                best = None
                 for permutation in permutations([0,1,2,3,4]):
                     cost = sum([c[i,permutation[i]] for i in range(5)])
                     if cost < min_cost:
-                        best = list(permutation)
                         min_cost = cost
                 result_cost = sum([c[i,x[i]] for i in range(5)])
                 self.assertAlmostEqual(min_cost, result_cost)

@@ -5,7 +5,7 @@ import unittest
 import numpy
 import scipy.ndimage
 
-from centrosome.watershed import watershed,fast_watershed
+from centrosome.watershed import fast_watershed
 
 eps = 1e-12
 
@@ -337,11 +337,11 @@ class TestFastWatershed(unittest.TestCase):
         
         image = scipy.ndimage.gaussian_filter(image, 4)
         before = time.clock() 
-        out = fast_watershed(image,markers,self.eight)
+        fast_watershed(image,markers,self.eight)
         elapsed = time.clock()-before
         print "Fast watershed ran a megapixel image in %f seconds"%(elapsed)
         before = time.clock()
-        out = scipy.ndimage.watershed_ift(image.astype(numpy.uint16), markers, self.eight)
+        scipy.ndimage.watershed_ift(image.astype(numpy.uint16), markers, self.eight)
         elapsed = time.clock()-before
         print "Scipy watershed ran a megapixel image in %f seconds"%(elapsed)
 

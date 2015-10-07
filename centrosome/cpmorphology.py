@@ -1512,12 +1512,6 @@ def minimum_enclosing_circle(labels, indexes = None,
         #
         v_indexes=np.argwhere(keep_me_vertices).flatten().astype(np.int32)
         #
-        # anti_indexes_per_vertex gives the index into "indexes" and
-        # any similarly shaped array of per-label values
-        # (for instance s0_idx) for each vertex being considered
-        #
-        anti_indexes_per_vertex = anti_indexes_per_point[keep_me_vertices]
-        #
         # anti_indexes_to_consider_per_vertex gives the index into any
         # vector shaped similarly to labels_to_consider for each
         # vertex being analyzed
@@ -1563,7 +1557,6 @@ def minimum_enclosing_circle(labels, indexes = None,
         min_angle = scind.minimum(angle_s0vs1,v_labels,
                                   labels_to_consider)
         min_angle = fixup_scipy_ndimage_result(min_angle)
-        min_angle_per_vertex = min_angle[anti_indexes_to_consider_per_vertex]
         #
         # Calculate the index into V of the minimum angle per label.
         # Use "indexes" instead of labels_to_consider so we get something
@@ -1656,7 +1649,6 @@ def minimum_enclosing_circle(labels, indexes = None,
             #
             v_obtuse_indexes = v_indexes[min_position[keep_me]]
             angle_vs0s1_to_consider = angle_vs0s1[min_position[keep_me]]
-            angle_vs1s0_to_consider = angle_vs1s0[min_position[keep_me]]
             #
             # Do the cases where S0 is larger
             #
@@ -1796,7 +1788,6 @@ def associate_by_distance(labels_a, labels_b, distance):
         # For each i,j, we have to compare the centers_a against point_counts_b[j]
         # crosses.
         #
-        b_len = point_counts_b[ij_consider[:,1]]
         b_index = np.cumsum(point_counts_b)
         b_elems = b_index[-1]
         b_index[1:] = b_index[:-1]
@@ -2178,7 +2169,6 @@ def ellipse_from_second_moments_ijv(i,j, image, labels, indexes, wants_compactne
     #
     # Normalize to center of object for stability
     #
-    nlabels = np.max(indexes)+1
     m = np.array([[None, 0, None],
                   [0, None, None],
                   [None, None, None]], object)
@@ -2523,10 +2513,10 @@ def euler_number(labels, indexes=None):
     #
     # There are 6 binary comparisons among the four bits
     #
-    EQ00_01 = I00 == I01;              EQ01_00 = EQ00_01
-    EQ00_10 = I00 == I10;              EQ10_00 = EQ00_10
-    EQ00_11 = I00 == I11;              EQ11_00 = EQ00_11
-    EQ01_10 = I01 == I10;              EQ10_01 = EQ01_10
+    EQ00_01 = I00 == I01;
+    EQ00_10 = I00 == I10;
+    EQ00_11 = I00 == I11;
+    EQ01_10 = I01 == I10;
     EQ01_11 = I01 == I11;              EQ11_01 = EQ01_11
     EQ10_11 = I10 == I11;              EQ11_10 = EQ10_11
     NE00_01 = np.logical_not(EQ00_01); NE01_00 = NE00_01
@@ -2677,13 +2667,10 @@ def grey_dilation(image, radius=None, mask=None, footprint=None):
     if footprint is None:
         if radius is None:
             footprint = np.ones((3,3),bool)
-            footprint_size = (3,3)
             radius = 1
         else:
             footprint = strel_disk(radius)==1
-            footprint_size = (radius*2+1,radius*2+1)
     else:
-        footprint_size = footprint.shape
         radius = max(np.max(np.array(footprint.shape) / 2),1)
     iradius = int(np.ceil(radius))
     #
