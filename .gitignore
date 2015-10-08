@@ -8,5 +8,6 @@ build
 centrosome.egg-info/
 centrosome/*.c
 centrosome/*.cpp
-centrosome/*.pyc
+*.pyc
+*.pyd
 dist
