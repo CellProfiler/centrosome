@@ -10,8 +10,6 @@ cache:
         - $HOME/.cache/pip
         - $TRAVIS_BUILD_DIR/.tox
 install:
-    - pip install --upgrade pip
-    - pip install --upgrade wheel
     - pip install --upgrade cython
     - pip install --upgrade tox
 language: python
