@@ -5578,6 +5578,53 @@ class TestGetOutlinePts(unittest.TestCase):
         labels, count = scind.label(mask, np.ones((3,3), bool))
         self.run_tst(labels, np.arange(1, count+1))
         
+class TestSkeletonLength(unittest.TestCase):
+    def test_01_00_nothing(self):
+        result = morph.skeleton_length(np.zeros((10, 10), int), 
+                                       np.zeros(0, int))
+        self.assertEqual(len(result), 0)
+        
+    def test_01_01_missing(self):
+        result = morph.skeleton_length(np.zeros((10, 10), int), 
+                                       [1])
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0], 0)
+        
+    def test_01_02_horizontal_line(self):
+        labels = np.zeros((10, 10), int)
+        labels[1:8, 4] = 1
+        result = morph.skeleton_length(labels, [1])
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0], 6)
+        
+    def test_01_03_diagonal_line(self):
+        labels = np.zeros((12, 12), int)
+        labels[np.arange(2, 10), np.arange(2, 10)] = 1
+        result = morph.skeleton_length(labels, [1])
+        self.assertEqual(len(result), 1)
+        self.assertAlmostEqual(result[0], np.sqrt(2) * 7, 
+                               delta = np.sqrt(np.finfo(np.float32).eps))
+        
+    def test_01_04_side_by_side(self):
+        labels = np.zeros((10, 10), int)
+        labels[1:8, 4] = 1
+        labels[2:8, 5] = 2
+        result = morph.skeleton_length(labels, [1, 2])
+        self.assertEqual(len(result), 2)
+        self.assertEqual(result[0], 6)
+        self.assertEqual(result[1], 5)
+        
+    def test_01_05_branchpoint(self):
+        labels = np.zeros((20, 20), int)
+        labels[1:8, 10] = 1 # vertical branch
+        labels[np.arange(8, 11), np.arange(9, 6, -1)] = 1 # branch left
+        labels[np.arange(8, 11), np.arange(11, 14)] = 1 # branch right
+        result = morph.skeleton_length(labels, [1])
+        self.assertEqual(len(result), 1)
+        self.assertAlmostEqual(result[0], 6 + 2*np.sqrt(2) * 3,
+                               delta = np.sqrt(np.finfo(np.float32).eps))
+        
+        
 chtest_08_01_data = np.array([
 [574,80,1],[576,80,1],[539,83,1],[517,85,1],[509,86,1],[479,91,1],
 [685,91,1],[721,103,1],[432,105,1],[746,114,1],[379,128,1],[373,131,1],

@@ -2311,6 +2311,18 @@ def calculate_perimeters(labels, indexes):
     # Create arrays that tell whether a pixel is like its neighbors.
     # index = 0 is the pixel -1,-1 from the pixel of interest, 1 is -1,0, etc.
     #
+    m = table_idx_from_labels(labels)
+    pixel_score = __perimeter_scoring[m]
+    return fixup_scipy_ndimage_result(scind.sum(pixel_score, labels, np.array(indexes,dtype=np.int32)))
+
+def table_idx_from_labels(labels):
+    '''Return an array of indexes into a morphology lookup table
+    labels - a labels matrix
+    
+    returns a matrix of values between 0 and 511 of indices appropriate
+    for table_lookup where a pixel's index is determined based on whether
+    or not the pixel has the same label as its neighbors (and is labeled)
+    '''
     m=np.zeros((labels.shape[0],labels.shape[1]),int)
     exponent = 0
     for i in range(-1,2):
@@ -2328,8 +2340,7 @@ def calculate_perimeters(labels, indexes):
                                           labels[ilow+i:iend+i,jlow+j:jend+j])
             m[mask] += 2**exponent
             exponent += 1
-    pixel_score = __perimeter_scoring[m]
-    return fixup_scipy_ndimage_result(scind.sum(pixel_score, labels, np.array(indexes,dtype=np.int32)))
+    return m
 
 def calculate_convex_hull_areas(labels,indexes=None):
     """Calulculate the area of the convex hull of each labeled object
@@ -3831,6 +3842,60 @@ def label_skeleton(skeleton):
     vertex_numbers[i,j] = labeling + 1
     return (vertex_numbers, 
             0 if len(labeling) == 0 else int(np.max(labeling)) + 1)
+
+__skel_length_table = None
+
+def skeleton_length(labels, indices=None):
+    '''Compute the length of all skeleton branches for labeled skeletons
+    
+    labels - a labels matrix
+    indices - the indexes of the labels to be measured. Default is all
+    
+    returns an array of one skeleton length per label.
+    '''
+    global __skel_length_table
+    if __skel_length_table is None:
+        tbl = np.zeros(512, np.float32)
+        for ii in range(-1, 2):
+            for jj in range(-1, 2):
+                if ii == 0 and jj == 0:
+                    continue
+                #
+                # Set the bit to search for and the center bit
+                #
+                idx = 2 ** (ii + 1 + (jj + 1) * 3) | 16
+                mask = (np.arange(512) & idx) == idx
+                #
+                # If we are four-connected to another pixel that is
+                # connected to this one, they are 8-connected and that
+                # is the distance.
+                #
+                #  bad     good
+                #  x 1 0   0 0 0
+                #  x 1 1   0 1 0
+                #  x x x   0 x 1
+                if ii != 0 and jj != 0:
+                    for adjacent_i, adjacent_j in (
+                        (ii-1, jj), (ii, jj-1), (ii+1, jj), (ii, jj+1)):
+                        if any([_ < -1 or _ > 1 
+                                for _ in adjacent_i, adjacent_j]):
+                            continue
+                        aidx = 2 ** (adjacent_i+1 + (adjacent_j + 1) * 3)
+                        mask = mask & ((np.arange(512) & aidx) != aidx)
+                tbl[mask] += np.sqrt(ii*ii + jj*jj) / 2
+        __skel_length_table = tbl
+    if indices is None:
+        indices = np.arange(1, np.max(labels)+1)
+    else:
+        indices = np.asanyarray(indices)
+    if len(indices) == 0:
+        return np.zeros(0)
+    score = __skel_length_table[table_idx_from_labels(labels)]
+    
+    result = np.bincount(labels.ravel(), 
+                         weights = score.ravel(),
+                         minlength=np.max(indices)+1)
+    return result[indices]
     
 def distance_to_edge(labels):
     '''Compute the distance of a pixel to the edge of its object
