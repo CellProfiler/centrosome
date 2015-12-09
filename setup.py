@@ -74,16 +74,40 @@ setuptools.setup(
             ]
         ),
         setuptools.Extension(
-            name="_propagate",
+            name="_convex_hull",
             sources=[
-                "centrosome/_propagate.pyx",
+                "centrosome/_convex_hull.pyx",
             ],
         ),
         setuptools.Extension(
-            name="*",
+            name="_cpmorphology2",
+            sources=[
+                "centrosome/_cpmorphology2.pyx",
+            ],
+        ),
+        setuptools.Extension(
+            name="_fastemd",
             language="c++",
             sources=[
-                "centrosome/*.pyx",
+                "centrosome/_fastemd.pyx",
+            ],
+        ),
+        setuptools.Extension(
+            name="_filter",
+            sources=[
+                "centrosome/_filter.pyx",
+            ],
+        ),
+        setuptools.Extension(
+            name="_lapjv",
+            sources=[
+                "centrosome/_lapjv.pyx",
+            ],
+        ),
+        setuptools.Extension(
+            name="_propagate",
+            sources=[
+                "centrosome/_propagate.pyx",
             ],
         ),
     ]),
