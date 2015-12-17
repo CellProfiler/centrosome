@@ -84,12 +84,7 @@ def median_filter(data, mask, radius, percent=50):
     #
     if (not np.issubdtype(data.dtype, np.int) or
         np.min(data) < 0 or np.max(data) > 255):
-        ranked_data,translation = rank_order(data[mask])
-        max_ranked_data = np.max(ranked_data)
-        if max_ranked_data == 0:
-            return data
-        if max_ranked_data > 255:
-            ranked_data = ranked_data * 255 / max_ranked_data
+        ranked_data, translation = rank_order(data[mask], nbins=255)
         was_ranked = True
     else:
         ranked_data = data[mask]
@@ -103,15 +98,7 @@ def median_filter(data, mask, radius, percent=50):
     
     _filter.median_filter(input, mmask, output, radius, percent)
     if was_ranked:
-        #
-        # The translation gives the original value at each ranking.
-        # We rescale the output to the original ranking and then
-        # use the translation to look up the original value in the data.
-        #
-        if max_ranked_data > 255:
-            result = translation[output.astype(np.uint32) * max_ranked_data / 255]
-        else:
-            result = translation[output]
+        result = translation[output]
     else:
         result = output
     return result

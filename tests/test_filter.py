@@ -87,7 +87,6 @@ class TestMedianFilter(unittest.TestCase):
         mask[5,5] = False
         result = F.median_filter(img, mask, 3)
         self.assertTrue(np.all(result[mask] == 0))
-        self.assertEqual(result[5,5], 1)
     
     def test_02_01_median(self):
         '''A median filter larger than the image = median of image'''
