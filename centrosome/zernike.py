@@ -24,13 +24,16 @@ def construct_zernike_lookuptable(zernike_indexes):
                  (factorial[k]*factorial[(n+m)/2-k]*factorial[(n-m)/2-k]))
     return lut
 
-def construct_zernike_polynomials(x,y,zernike_indexes,mask=None):
+def construct_zernike_polynomials(x, y, zernike_indexes, mask=None, weight=None):
     """Return the zerike polynomials for all objects in an image
     
     x - the X distance of a point from the center of its object
     y - the Y distance of a point from the center of its object
     zernike_indexes - an Nx2 array of the Zernike polynomials to be computed.
     mask - a mask with same shape as X and Y of the points to consider
+    weight - weightings of points with the same shape as X and Y (default
+             weight on each point is 1).
+    
     returns a height x width x N array of complex numbers which are the
     e^i portion of the sine and cosine of the Zernikes
     """
@@ -42,6 +45,8 @@ def construct_zernike_polynomials(x,y,zernike_indexes,mask=None):
         raise ValueError("The mask must have the same shape as X and Y")
     x = x[mask]
     y = y[mask]
+    if weight is not None:
+        weight = weight[mask]
     lut = construct_zernike_lookuptable(zernike_indexes)
     nzernikes = zernike_indexes.shape[0]
     r = np.sqrt(x**2+y**2)
@@ -57,9 +62,11 @@ def construct_zernike_polynomials(x,y,zernike_indexes,mask=None):
         for k in range((n-m)/2+1):
             s += lut[idx,k] * r**(n-2*k)
         s[r>1]=0
-        zf[:,idx] = s*exp_term 
+        if weight is not None:
+            s *= weight.astype(s.dtype)
+        zf[:,idx] = s*exp_term
     
-    result = np.zeros((mask.shape[0],mask.shape[1],nzernikes),np.complex)
+    result = np.zeros(list(mask.shape) + [nzernikes], np.complex)
     result[mask] = zf
     return result
 
