@@ -65,7 +65,7 @@ setuptools.setup(
         "build_ext": BuildExtension,
         "test": Test
     },
-    description="",
+    description="An open source image processing library",
     ext_modules=Cython.Build.cythonize([
         setuptools.Extension(
             name="_cpmorphology",
