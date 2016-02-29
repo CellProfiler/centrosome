@@ -1,9 +1,27 @@
 import centrosome.kirsch
-import skimage.io
-import skimage.data
 import scipy.misc
-import numpy
+import numpy as np
+import unittest
 
-
-def test_kirsch():
-    assert numpy.array_equal(centrosome.kirsch.kirsch(skimage.data.camera()), scipy.misc.imread("tests/resources/kirsch.tiff"))
+class TestKirsch(unittest.TestCase):
+    def test_01_01_kirsch(self):
+        #
+        # Test a maximum at all possible orientations
+        #
+        r = np.random.RandomState([ord(_) for _ in "kirsch"])
+        for coords in (((0,  -1), (-1, -1), (-1, 0)),
+                       ((-1, -1), (-1,  0), (-1, 1)),
+                       ((-1,  0), (-1,  1), (0,  1)),
+                       ((-1,  1), ( 0,  1), (1,  1)),
+                       (( 0,  1), ( 1,  1), (1,  0)),
+                       (( 1,  1), ( 1,  0), (1, -1)),
+                       (( 1,  0), ( 1, -1), (0, -1)),
+                       (( 1, -1), ( 0, -1), (-1, -1))):
+            img = r.uniform(size=(3, 3)) * .1
+            expected = -3 * img
+            for ioff, joff in coords:
+                img[ioff + 1, joff + 1] += .5
+                expected[ioff + 1, joff+1] = img[ioff + 1, joff+1] * 5
+            expected[1, 1] = 0
+            result = centrosome.kirsch.kirsch(img)
+            self.assertEqual(result[1, 1], np.sum(expected))
