@@ -1,6 +1,7 @@
 addons:
     apt:
         packages:
+            - python-imaging
             - python-matplotlib
             - python-numpy
             - python-scipy
