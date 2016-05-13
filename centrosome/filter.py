@@ -13,6 +13,8 @@ from cpmorphology import centers_of_labels
 from cpmorphology import grey_erosion, grey_reconstruction
 from cpmorphology import convex_hull_ijv, get_line_pts
 import skimage.feature
+import skimage.filters
+
 
 '''# of points handled in the first pass of the convex hull code'''
 CONVEX_HULL_CHUNKSIZE = 250000
@@ -342,67 +344,15 @@ def roberts(image, mask=None):
 
 
 def sobel(image, mask=None):
-    '''Calculate the absolute magnitude Sobel to find the edges
-    
-    image - image to process
-    mask - mask of relevant points
-    
-    Take the square root of the sum of the squares of the horizontal and
-    vertical Sobels to get a magnitude that's somewhat insensitive to
-    direction.
-    
-    Note that scipy's Sobel returns a directional Sobel which isn't
-    useful for edge detection in its raw form.
-    '''
     return np.sqrt(hsobel(image, mask) ** 2 + vsobel(image, mask) ** 2)
 
 
 def hsobel(image, mask=None):
-    '''Find the horizontal edges of an image using the Sobel transform
-    
-    image - image to process
-    mask  - mask of relevant points
-    
-    We use the following kernel and return the absolute value of the
-    result at each point:
-     1   2   1
-     0   0   0
-    -1  -2  -1
-    '''
-    if mask is None:
-        mask = np.ones(image.shape, bool)
-    big_mask = binary_erosion(mask,
-                              generate_binary_structure(2, 2),
-                              border_value=0)
-    result = np.abs(convolve(image, np.array([[1, 2, 1],
-                                              [0, 0, 0],
-                                              [-1, -2, -1]]).astype(float) / 4.0))
-    result[big_mask == False] = 0
-    return result
+    return skimage.filters.sobel_h(image, mask)
 
 
 def vsobel(image, mask=None):
-    '''Find the vertical edges of an image using the Sobel transform
-    
-    image - image to process
-    mask  - mask of relevant points
-    
-    We use the following kernel and return the absolute value of the
-    result at each point:
-     1   0  -1
-     2   0  -2
-     1   0  -1
-    '''
-    if mask is None:
-        mask = np.ones(image.shape, bool)
-    big_mask = binary_erosion(mask,
-                              generate_binary_structure(2, 2),
-                              border_value=0)
-    result = np.abs(convolve(image, np.array([[1, 0, -1],
-                                              [2, 0, -2],
-                                              [1, 0, -1]]).astype(float) / 4.0))
-    result[big_mask == False] = 0
-    return result
+    return skimage.filters.sobel_v(image, mask)
 
 
 def prewitt(image, mask=None):
