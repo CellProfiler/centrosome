@@ -14,6 +14,8 @@ from cpmorphology import grey_erosion, grey_reconstruction
 from cpmorphology import convex_hull_ijv, get_line_pts
 import skimage.feature
 import skimage.filters
+import skimage.filters.rank
+import itertools
 
 
 '''# of points handled in the first pass of the convex hull code'''
@@ -70,7 +72,7 @@ def unstretch(image, minval, maxval):
 
 def median_filter(data, mask, radius, percent=50):
     '''Masked median filter with octagonal shape
-    
+
     data - array of data to be median filtered.
     mask - mask of significant pixels in data
     radius - the radius of a circle inscribed into the filtering octagon
@@ -1164,55 +1166,7 @@ def dot_n(x, y):
 
 
 def permutations(x):
-    '''Given a listlike, x, return all permutations of x
-    
-    Returns the permutations of x in the lexical order of their indices:
-    e.g.
-    >>> x = [ 1, 2, 3, 4 ]
-    >>> for p in permutations(x):
-    >>>   print p
-    [ 1, 2, 3, 4 ]
-    [ 1, 2, 4, 3 ] 
-    [ 1, 3, 2, 4 ]
-    [ 1, 3, 4, 2 ]
-    [ 1, 4, 2, 3 ]
-    [ 1, 4, 3, 2 ]
-    [ 2, 1, 3, 4 ]
-    ...
-    [ 4, 3, 2, 1 ]
-    '''
-    #
-    # The algorithm is attributed to Narayana Pandit from his 
-    # Ganita Kaumundi (1356). The following is from
-    #
-    # http://en.wikipedia.org/wiki/Permutation#Systematic_generation_of_all_permutations
-    #
-    # 1. Find the largest index k such that a[k] < a[k + 1]. 
-    #    If no such index exists, the permutation is the last permutation.
-    # 2. Find the largest index l such that a[k] < a[l]. 
-    #    Since k + 1 is such an index, l is well defined and satisfies k < l.
-    # 3. Swap a[k] with a[l].
-    # 4. Reverse the sequence from a[k + 1] up to and including the final
-    #    element a[n].
-    #
-    yield list(x)  # don't forget to do the first one
-    x = np.array(x)
-    a = np.arange(len(x))
-    while True:
-        # 1 - find largest or stop
-        ak_lt_ak_next = np.argwhere(a[:-1] < a[1:])
-        if len(ak_lt_ak_next) == 0:
-            raise StopIteration()
-        k = ak_lt_ak_next[-1, 0]
-        # 2 - find largest a[l] < a[k]
-        ak_lt_al = np.argwhere(a[k] < a)
-        l = ak_lt_al[-1, 0]
-        # 3 - swap
-        a[k], a[l] = (a[l], a[k])
-        # 4 - reverse
-        if k < len(x) - 1:
-            a[k + 1:] = a[:k:-1].copy()
-        yield x[a].tolist()
+    return itertools.permutations(x)
 
 
 def convex_hull_transform(image, levels=256, mask=None,
