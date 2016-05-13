@@ -368,51 +368,11 @@ def prewitt(image, mask=None):
 
 
 def hprewitt(image, mask=None):
-    '''Find the horizontal edges of an image using the Prewitt transform
-    
-    image - image to process
-    mask  - mask of relevant points
-    
-    We use the following kernel and return the absolute value of the
-    result at each point:
-     1   1   1
-     0   0   0
-    -1  -1  -1
-    '''
-    if mask is None:
-        mask = np.ones(image.shape, bool)
-    big_mask = binary_erosion(mask,
-                              generate_binary_structure(2, 2),
-                              border_value=0)
-    result = np.abs(convolve(image, np.array([[1, 1, 1],
-                                              [0, 0, 0],
-                                              [-1, -1, -1]]).astype(float) / 3.0))
-    result[big_mask == False] = 0
-    return result
+    return skimage.filters.prewitt_h(image, mask)
 
 
 def vprewitt(image, mask=None):
-    '''Find the vertical edges of an image using the Prewitt transform
-    
-    image - image to process
-    mask  - mask of relevant points
-    
-    We use the following kernel and return the absolute value of the
-    result at each point:
-     1   0  -1
-     1   0  -1
-     1   0  -1
-    '''
-    if mask is None:
-        mask = np.ones(image.shape, bool)
-    big_mask = binary_erosion(mask,
-                              generate_binary_structure(2, 2),
-                              border_value=0)
-    result = np.abs(convolve(image, np.array([[1, 0, -1],
-                                              [1, 0, -1],
-                                              [1, 0, -1]]).astype(float) / 3.0))
-    result[big_mask == False] = 0
-    return result
+    return skimage.filters.prewitt_v(image, mask)
 
 
 def gabor(image, labels, frequency, theta):
