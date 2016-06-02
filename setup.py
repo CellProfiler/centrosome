@@ -46,7 +46,7 @@ class Test(setuptools.command.test.test):
 
 setuptools.setup(
     author="Allen Goodman",
-    author_email="agoodman@broadinstitute.org",
+    author_email="allen.goodman@icloud.com",
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Science/Research",
