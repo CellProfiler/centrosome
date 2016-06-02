@@ -638,7 +638,7 @@ cdef inline np.uint8_t find_median(Histograms *ph):
 # row_stride - stride from one row to the next in each array
 # col_stride - stride from one column to the next in each array
 # radius - radius of circle inscribed into octagon
-# percent - "median" cutoff: 50 = median, 25 = lower quartile, etc
+# percent - "median" cutoff: 50 = median, 25 = lower quartile, travis
 # data - array of image pixels to be filtered
 # mask - mask of significant pixels
 # output - array to be filled with filtered pixels
