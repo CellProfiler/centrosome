@@ -690,6 +690,37 @@ def enhance_dark_holes(image, min_radius, max_radius, mask=None):
             smoothed_image = np.maximum(smoothed_image,output_image)
         previous_reconstructed_image = reconstructed_image
     return smoothed_image
+    
+    
+def granulometry_filter(image, min_radius, max_radius, mask=None):
+    '''Enhances bright structures within a min and max radius using a rolling ball filter
+    
+    image - grayscale 2-d image
+    radii - a vector of radii: we enhance holes at each given radius
+    '''
+    #
+    # Do 4-connected erosion
+    #
+    se = np.array([[False, True, False],
+                   [True, True, True],
+                   [False, True, False]])
+    #
+    # Initialize
+    #
+    previous_opened_image = image
+    eroded_image = image
+    selected_granules_image = np.zeros(image.shape)
+    #
+    # Select granules by successive morphological openings
+    #    
+    for i in range(max_radius+1):
+        eroded_image = grey_erosion(eroded_image, mask=mask, footprint = se)
+        opened_image = grey_dilation(eroded_image, inverted_image, footprint = se)
+        output_image = previous_opened_image - opened_image 
+        if i >= min_radius:
+            selected_granules_image = np.maximum(selected_granules_image, output_image)
+        previous_opened_image = opened_image 
+    return selected_granules_image 
 
 def circular_average_filter(image, radius, mask=None):
     '''Blur an image using a circular averaging filter (pillbox)  
