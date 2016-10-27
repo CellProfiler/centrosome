@@ -18,23 +18,23 @@ class TestStretch(unittest.TestCase):
     def test_00_00_empty(self):
         result = F.stretch(np.zeros((0,)))
         self.assertEqual(len(result), 0)
-    
+
     def test_00_01_empty_plus_mask(self):
         result = F.stretch(np.zeros((0,)), np.zeros((0,),bool))
         self.assertEqual(len(result), 0)
-    
+
     def test_00_02_zeros(self):
         result = F.stretch(np.zeros((10,10)))
         self.assertTrue(np.all(result == 0))
-    
+
     def test_00_03_zeros_plus_mask(self):
         result = F.stretch(np.zeros((10,10)), np.ones((10,10),bool))
         self.assertTrue(np.all(result == 0))
-    
+
     def test_00_04_half(self):
         result = F.stretch(np.ones((10,10))*.5)
         self.assertTrue(np.all(result == .5))
-    
+
     def test_00_05_half_plus_mask(self):
         result = F.stretch(np.ones((10,10))*.5, np.ones((10,10),bool))
         self.assertTrue(np.all(result == .5))
@@ -47,7 +47,7 @@ class TestStretch(unittest.TestCase):
         expected = (image + 2.0)/4.0
         result = F.stretch(image)
         self.assertTrue(np.all(result == expected))
-    
+
     def test_01_02_rescale_plus_mask(self):
         np.random.seed(0)
         image = np.random.uniform(-2, 2, size=(10,10))
@@ -66,19 +66,19 @@ class TestMedianFilter(unittest.TestCase):
         '''The median filter on an array of all zeros should be zero'''
         result = F.median_filter(np.zeros((10,10)), np.ones((10,10),bool), 3)
         self.assertTrue(np.all(result == 0))
-        
+
     def test_00_01_all_masked(self):
         '''Test a completely masked image
-        
+
         Regression test of IMG-1029'''
         result = F.median_filter(np.zeros((10,10)), np.zeros((10,10), bool), 3)
         self.assertTrue(np.all(result == 0))
-        
+
     def test_00_02_all_but_one_masked(self):
         mask = np.zeros((10,10), bool)
         mask[5,5] = True
         result = F.median_filter(np.zeros((10,10)), mask, 3)
-    
+
     def test_01_01_mask(self):
         '''The median filter, masking a single value'''
         img = np.zeros((10,10))
@@ -87,7 +87,7 @@ class TestMedianFilter(unittest.TestCase):
         mask[5,5] = False
         result = F.median_filter(img, mask, 3)
         self.assertTrue(np.all(result[mask] == 0))
-    
+
     def test_02_01_median(self):
         '''A median filter larger than the image = median of image'''
         np.random.seed(0)
@@ -95,7 +95,7 @@ class TestMedianFilter(unittest.TestCase):
         result = F.median_filter(img, np.ones((9,9),bool), 20)
         self.assertEqual(result[0,0], np.median(img))
         self.assertTrue(np.all(result == np.median(img)))
-    
+
     def test_02_02_median_bigger(self):
         '''Use an image of more than 255 values to test approximation'''
         np.random.seed(0)
@@ -107,10 +107,10 @@ class TestMedianFilter(unittest.TestCase):
         max_acceptable = sorted[202]
         self.assertTrue(np.all(result >= min_acceptable))
         self.assertTrue(np.all(result <= max_acceptable))
-        
+
     def test_03_01_shape(self):
         '''Make sure the median filter is the expected octagonal shape'''
-        
+
         radius = 5
         a_2 = int(radius / 2.414213)
         i,j = np.mgrid[-10:11,-10:11]
@@ -136,7 +136,7 @@ class TestMedianFilter(unittest.TestCase):
         max_acceptable = sorted[len(sorted)/2+1]
         self.assertTrue(result[10,10] >= min_acceptable)
         self.assertTrue(result[10,10] <= max_acceptable)
-        
+
     def test_04_01_half_masked(self):
         '''Make sure that the median filter can handle large masked areas.'''
         img = np.ones((20, 20))
@@ -157,14 +157,14 @@ class TestBilateralFilter(unittest.TestCase):
         result = F.bilateral_filter(np.zeros((10,10)),np.ones((10,10),bool),
                                     5.0, .1)
         self.assertTrue(np.all(result == 0))
-    
+
     def test_00_01_all_masked(self):
         '''Test the bilateral filter of a completely masked array'''
         np.random.seed(0)
         image = np.random.uniform(size=(10,10))
         result = F.bilateral_filter(image, np.zeros((10,10),bool), 5.0, .1)
         self.assertTrue(np.all(result == image))
-    
+
     def test_01_01_image(self):
         '''Test a piece of a picture of a microplate against the reference algorithm'''
         data = ('SkM5PDc5QkVBREhBR01lW01NP0tKSE1JNzY8PT5HQkdQSkZZU0'
@@ -849,9 +849,9 @@ class TestLaplacianOfGaussian(unittest.TestCase):
     def test_00_00_zeros(self):
         result = F.laplacian_of_gaussian(np.zeros((10,10)), None, 9, 3)
         self.assertTrue(np.all(result==0))
-    
+
     def test_00_01_zeros_mask(self):
-        result = F.laplacian_of_gaussian(np.zeros((10,10)), 
+        result = F.laplacian_of_gaussian(np.zeros((10,10)),
                                          np.zeros((10,10),bool), 9, 3)
         self.assertTrue(np.all(result==0))
 
@@ -869,13 +869,13 @@ class TestCanny(unittest.TestCase):
         '''Test that the Canny filter finds no points for a blank field'''
         result = F.canny(np.zeros((20,20)),np.ones((20,20),bool), 4, 0, 0)
         self.assertFalse(np.any(result))
-    
+
     def test_00_01_zeros_mask(self):
         '''Test that the Canny filter finds no points in a masked image'''
         result = F.canny(np.random.uniform(size=(20,20)),np.zeros((20,20),bool),
                          4,0,0)
         self.assertFalse(np.any(result))
-    
+
     def test_01_01_circle(self):
         '''Test that the Canny filter finds the outlines of a circle'''
         i,j = np.mgrid[-200:200,-200:200].astype(float) / 200
@@ -898,7 +898,7 @@ class TestCanny(unittest.TestCase):
         point_count = np.sum(result)
         self.assertTrue(point_count > 1200)
         self.assertTrue(point_count < 1600)
-    
+
     def test_01_02_circle_with_noise(self):
         '''Test that the Canny filter finds the circle outlines in a noisy image'''
         np.random.seed(0)
@@ -923,17 +923,17 @@ class TestRoberts(unittest.TestCase):
         '''Roberts on an array of all zeros'''
         result = F.roberts(np.zeros((10,10)), np.ones((10,10),bool))
         self.assertTrue(np.all(result==0))
-    
+
     def test_00_01_mask(self):
         '''Roberts on a masked array should be zero'''
         np.random.seed(0)
-        result = F.roberts(np.random.uniform(size=(10,10)), 
+        result = F.roberts(np.random.uniform(size=(10,10)),
                            np.zeros((10,10),bool))
         self.assertTrue(np.all(result == 0))
-    
+
     def test_01_01(self):
         '''Roberts on a diagonal edge should recreate the diagonal line'''
-        
+
         i,j = np.mgrid[0:10,0:10]
         image = (i >= j).astype(float)
         result = F.roberts(image)
@@ -945,7 +945,7 @@ class TestRoberts(unittest.TestCase):
         i[-1,-1] = 10000
         self.assertTrue(np.all(result[i==j]==1))
         self.assertTrue(np.all(result[np.abs(i-j)>1] == 0))
-    
+
     def test_01_02(self):
         '''Roberts on an anti-diagonal edge should recreate the line'''
         i,j = np.mgrid[-5:6,-5:6]
@@ -955,17 +955,17 @@ class TestRoberts(unittest.TestCase):
         i[-1,0] = 10000
         self.assertTrue(np.all(result[i==-j]==1))
         self.assertTrue(np.all(result[np.abs(i+j)>1] == 0))
-    
+
 class TestSobel(unittest.TestCase):
     def test_00_00_zeros(self):
         '''Sobel on an array of all zeros'''
         result = F.sobel(np.zeros((10,10)), np.ones((10,10),bool))
         self.assertTrue(np.all(result==0))
-    
+
     def test_00_01_mask(self):
         '''Sobel on a masked array should be zero'''
         np.random.seed(0)
-        result = F.sobel(np.random.uniform(size=(10,10)), 
+        result = F.sobel(np.random.uniform(size=(10,10)),
                          np.zeros((10,10),bool))
         self.assertTrue(np.all(result == 0))
 
@@ -978,7 +978,7 @@ class TestSobel(unittest.TestCase):
         i[np.abs(j)==5] = 10000
         self.assertTrue(np.all(result[i==0] == 1))
         self.assertTrue(np.all(result[np.abs(i) > 1] == 0))
-    
+
     def test_01_02_vertical(self):
         '''Sobel on a vertical edge should be a vertical line'''
         i,j = np.mgrid[-5:6,-5:6]
@@ -993,11 +993,11 @@ class TestHSobel(unittest.TestCase):
         '''Horizontal sobel on an array of all zeros'''
         result = F.hsobel(np.zeros((10,10)), np.ones((10,10),bool))
         self.assertTrue(np.all(result==0))
-    
+
     def test_00_01_mask(self):
         '''Horizontal Sobel on a masked array should be zero'''
         np.random.seed(0)
-        result = F.hsobel(np.random.uniform(size=(10,10)), 
+        result = F.hsobel(np.random.uniform(size=(10,10)),
                           np.zeros((10,10),bool))
         self.assertTrue(np.all(result == 0))
 
@@ -1010,7 +1010,7 @@ class TestHSobel(unittest.TestCase):
         i[np.abs(j)==5] = 10000
         self.assertTrue(np.all(result[i==0] == 1))
         self.assertTrue(np.all(result[np.abs(i) > 1] == 0))
-    
+
     def test_01_02_vertical(self):
         '''Horizontal Sobel on a vertical edge should be zero'''
         i,j = np.mgrid[-5:6,-5:6]
@@ -1023,11 +1023,11 @@ class TestVSobel(unittest.TestCase):
         '''Vertical sobel on an array of all zeros'''
         result = F.vsobel(np.zeros((10,10)), np.ones((10,10),bool))
         self.assertTrue(np.all(result==0))
-    
+
     def test_00_01_mask(self):
         '''Vertical Sobel on a masked array should be zero'''
         np.random.seed(0)
-        result = F.vsobel(np.random.uniform(size=(10,10)), 
+        result = F.vsobel(np.random.uniform(size=(10,10)),
                           np.zeros((10,10),bool))
         self.assertTrue(np.all(result == 0))
 
@@ -1040,7 +1040,7 @@ class TestVSobel(unittest.TestCase):
         j[np.abs(i)==5] = 10000
         self.assertTrue(np.all(result[j==0] == 1))
         self.assertTrue(np.all(result[np.abs(j) > 1] == 0))
-    
+
     def test_01_02_horizontal(self):
         '''vertical Sobel on a horizontal edge should be zero'''
         i,j = np.mgrid[-5:6,-5:6]
@@ -1054,11 +1054,11 @@ class TestPrewitt(unittest.TestCase):
         '''Prewitt on an array of all zeros'''
         result = F.prewitt(np.zeros((10,10)), np.ones((10,10),bool))
         self.assertTrue(np.all(result==0))
-    
+
     def test_00_01_mask(self):
         '''Prewitt on a masked array should be zero'''
         np.random.seed(0)
-        result = F.prewitt(np.random.uniform(size=(10,10)), 
+        result = F.prewitt(np.random.uniform(size=(10,10)),
                           np.zeros((10,10),bool))
         eps = .000001
         self.assertTrue(np.all(np.abs(result) < eps))
@@ -1073,7 +1073,7 @@ class TestPrewitt(unittest.TestCase):
         eps = .000001
         self.assertTrue(np.all(result[i==0] == 1))
         self.assertTrue(np.all(np.abs(result[np.abs(i) > 1]) < eps))
-    
+
     def test_01_02_vertical(self):
         '''Prewitt on a vertical edge should be a vertical line'''
         i,j = np.mgrid[-5:6,-5:6]
@@ -1089,11 +1089,11 @@ class TestHPrewitt(unittest.TestCase):
         '''Horizontal sobel on an array of all zeros'''
         result = F.hprewitt(np.zeros((10,10)), np.ones((10,10),bool))
         self.assertTrue(np.all(result==0))
-    
+
     def test_00_01_mask(self):
         '''Horizontal prewitt on a masked array should be zero'''
         np.random.seed(0)
-        result = F.hprewitt(np.random.uniform(size=(10,10)), 
+        result = F.hprewitt(np.random.uniform(size=(10,10)),
                           np.zeros((10,10),bool))
         eps = .000001
         self.assertTrue(np.all(np.abs(result) < eps))
@@ -1108,7 +1108,7 @@ class TestHPrewitt(unittest.TestCase):
         eps = .000001
         self.assertTrue(np.all(result[i==0] == 1))
         self.assertTrue(np.all(np.abs(result[np.abs(i) > 1]) < eps))
-    
+
     def test_01_02_vertical(self):
         '''Horizontal prewitt on a vertical edge should be zero'''
         i,j = np.mgrid[-5:6,-5:6]
@@ -1122,11 +1122,11 @@ class TestVPrewitt(unittest.TestCase):
         '''Vertical prewitt on an array of all zeros'''
         result = F.vprewitt(np.zeros((10,10)), np.ones((10,10),bool))
         self.assertTrue(np.all(result==0))
-    
+
     def test_00_01_mask(self):
         '''Vertical prewitt on a masked array should be zero'''
         np.random.seed(0)
-        result = F.vprewitt(np.random.uniform(size=(10,10)), 
+        result = F.vprewitt(np.random.uniform(size=(10,10)),
                           np.zeros((10,10),bool))
         self.assertTrue(np.all(result == 0))
 
@@ -1140,7 +1140,7 @@ class TestVPrewitt(unittest.TestCase):
         self.assertTrue(np.all(result[j==0] == 1))
         eps = .000001
         self.assertTrue(np.all(np.abs(result[np.abs(j) > 1]) < eps))
-    
+
     def test_01_02_horizontal(self):
         '''vertical prewitt on a horizontal edge should be zero'''
         i,j = np.mgrid[-5:6,-5:6]
@@ -1153,17 +1153,17 @@ class TestEnhanceDarkHoles(unittest.TestCase):
     def test_00_00_zeros(self):
         result = F.enhance_dark_holes(np.zeros((15,19)),1,5)
         self.assertTrue(np.all(result == 0))
-    
+
     def test_01_01_positive(self):
         '''See if we pick up holes of given sizes'''
-        
+
         i,j = np.mgrid[-25:26,-25:26].astype(float)
         for r in range(5,11):
             image = (np.abs(np.sqrt(i**2+j**2)-r) <= .5).astype(float)
             eimg = F.enhance_dark_holes(image,r-1, r)
             self.assertTrue(np.all(eimg[np.sqrt(i**2+j**2) < r-1] == 1))
             self.assertTrue(np.all(eimg[np.sqrt(i**2+j**2) >= r] == 0))
-            
+
     def test_01_01_negative(self):
         '''See if we miss holes of the wrong size'''
         i,j = np.mgrid[-25:26,-25:26].astype(float)
@@ -1172,7 +1172,7 @@ class TestEnhanceDarkHoles(unittest.TestCase):
             for lo,hi in ((r-3,r-2),(r+1,r+2)):
                 eimg = F.enhance_dark_holes(image,lo, hi)
                 self.assertTrue(np.all(eimg==0))
-        
+
 class TestKalmanFilter(unittest.TestCase):
     def test_00_00_none(self):
         kalman_state = F.velocity_kalman_model()
@@ -1183,7 +1183,7 @@ class TestKalmanFilter(unittest.TestCase):
                                  np.zeros((0, 2, 2)))
         self.assertTrue(isinstance(result, F.KalmanState))
         self.assertEqual(len(result.state_vec), 0)
-        
+
     def test_01_01_add_one(self):
         np.random.seed(11)
         locs = np.random.randint(0, 1000, size=(1,2))
@@ -1196,7 +1196,7 @@ class TestKalmanFilter(unittest.TestCase):
         self.assertTrue(isinstance(result, F.KalmanState))
         self.assertEqual(len(result.state_vec), 1)
         self.assertTrue(np.all(result.state_vec[:,:2] == locs))
-        
+
     def test_01_02_same_loc_twice(self):
         np.random.seed(12)
         locs = np.random.randint(0, 1000, size=(1,2))
@@ -1209,7 +1209,7 @@ class TestKalmanFilter(unittest.TestCase):
         self.assertTrue(isinstance(result, F.KalmanState))
         self.assertEqual(len(result.state_vec), 1)
         self.assertTrue(np.all(result.state_vec[:,:2] == locs))
-        
+
         result = F.kalman_filter(result,
                                  np.zeros(1, int),
                                  locs,
@@ -1233,7 +1233,7 @@ class TestKalmanFilter(unittest.TestCase):
         self.assertTrue(isinstance(result, F.KalmanState))
         self.assertEqual(len(result.state_vec), 1)
         self.assertTrue(np.all(result.state_vec[:,:2] == locs))
-        
+
         result = F.kalman_filter(result,
                                  np.zeros(1, int),
                                  locs,
@@ -1257,7 +1257,7 @@ class TestKalmanFilter(unittest.TestCase):
         self.assertTrue(np.all(result.state_vec[:,:2] == locs))
         self.assertTrue(np.all(result.predicted_obs_vec == locs))
         self.assertTrue(np.all(result.noise_var == 0))
-    
+
     def test_01_04_disappear(self):
         np.random.seed(13)
         locs = np.random.randint(0, 1000, size=(1,2))
@@ -1270,14 +1270,14 @@ class TestKalmanFilter(unittest.TestCase):
         self.assertTrue(isinstance(result, F.KalmanState))
         self.assertEqual(len(result.state_vec), 1)
         self.assertTrue(np.all(result.state_vec[:,:2] == locs))
-        
+
         result = F.kalman_filter(kalman_state,
                                  np.zeros(0, int),
                                  np.zeros((0,2)),
                                  np.zeros((0,4,4)),
                                  np.zeros((0,2,2)))
         self.assertEqual(len(result.state_vec), 0)
-        
+
     def test_01_05_follow_2(self):
         np.random.seed(15)
         locs = np.random.randint(0, 1000, size=(2,2))
@@ -1290,7 +1290,7 @@ class TestKalmanFilter(unittest.TestCase):
         self.assertTrue(isinstance(result, F.KalmanState))
         self.assertEqual(len(result.state_vec), 2)
         self.assertTrue(np.all(result.state_vec[:,:2] == locs))
-        
+
         result = F.kalman_filter(result,
                                  np.arange(2),
                                  locs,
@@ -1312,7 +1312,7 @@ class TestKalmanFilter(unittest.TestCase):
         self.assertTrue(np.all(result.state_vec[:,:2] == locs))
         self.assertTrue(np.all(result.predicted_obs_vec == locs))
         self.assertTrue(np.all(result.noise_var == 0))
-        
+
     def test_01_06_follow_with_movement(self):
         np.random.seed(16)
         vi = 5
@@ -1359,7 +1359,7 @@ class TestKalmanFilter(unittest.TestCase):
             new_e = np.abs(kalman_state.predicted_obs_vec - locs)
             self.assertTrue(np.all(new_e <= e + np.finfo(np.float32).eps))
             e = new_e
-            
+
     def test_01_08_scramble_add_and_remove(self):
         np.random.seed(18)
         nfeatures = 20
@@ -1397,7 +1397,7 @@ class TestKalmanFilter(unittest.TestCase):
             new_e = np.abs(kalman_state.predicted_obs_vec - locs)
             self.assertTrue(np.all(new_e[:-add] <= e[:-add] + np.finfo(np.float32).eps))
             e = new_e
-            
+
     def test_02_01_with_noise(self):
         np.random.seed(21)
         nfeatures = 20
@@ -1436,8 +1436,8 @@ class TestKalmanFilter(unittest.TestCase):
         #
         self.assertTrue(np.all(k_var / kalman_state.noise_var[:,0] < 4))
         self.assertTrue(np.all(kalman_state.noise_var[:,0] / k_var < 4))
-        
-        
+
+
 class TestPermutations(unittest.TestCase):
     def test_01_01_permute_one(self):
         np.random.seed(11)
@@ -1446,7 +1446,7 @@ class TestPermutations(unittest.TestCase):
         self.assertEqual(len(b), 1)
         self.assertEqual(len(b[0]), 1)
         self.assertEqual(b[0][0], a[0])
-        
+
     def test_01_02_permute_two(self):
         np.random.seed(12)
         a = np.random.uniform(size=2)
@@ -1454,7 +1454,7 @@ class TestPermutations(unittest.TestCase):
         self.assertEqual(len(b), 2)
         self.assertEqual(len(b[0]), 2)
         self.assertTrue(np.all(np.array(b) == a[np.array([[0,1],[1,0]])]))
-        
+
     def test_01_03_permute_three(self):
         np.random.seed(13)
         a = np.random.uniform(size=3)
@@ -1468,11 +1468,11 @@ class TestPermutations(unittest.TestCase):
                              [2,0,1],
                              [2,1,0]])
         self.assertTrue(np.all(np.array(b) == a[expected]))
-       
+
 class TestParity(unittest.TestCase):
     def test_01_01_one(self):
         self.assertEqual(F.parity([1]), 1)
-        
+
     def test_01_02_lots(self):
         np.random.seed(12)
         for i in range(100):
@@ -1483,12 +1483,12 @@ class TestParity(unittest.TestCase):
                 k,l = np.random.permutation(np.arange(size))[:2]
                 a[k],a[l] = a[l],a[k]
             self.assertEqual(F.parity(a), 1 - (n % 2) * 2)
-            
+
 class TestDotN(unittest.TestCase):
     def test_00_00_dot_nothing(self):
         result = F.dot_n(np.zeros((0,4,4)), np.zeros((0,4,4)))
         self.assertEqual(len(result), 0)
-        
+
     def test_01_01_dot_2x2(self):
         np.random.seed(11)
         a = np.random.uniform(size = (1,2,2))
@@ -1517,14 +1517,14 @@ class TestDetN(unittest.TestCase):
     def test_00_00_det_nothing(self):
         result = F.det_n(np.zeros((0,4,4)))
         self.assertEqual(len(result), 0)
-        
+
     def test_01_01_det_1x1x1(self):
         np.random.seed(11)
         a = np.random.uniform(size=(1,1,1))
         result = F.det_n(a)
         self.assertEqual(len(result), 1)
         self.assertEqual(a[0,0,0], result[0])
-        
+
     def test_01_02_det_1x2x2(self):
         np.random.seed(12)
         a = np.random.uniform(size=(1,2,2))
@@ -1561,7 +1561,7 @@ class TestCofactorN(unittest.TestCase):
                     aa = a[n][iii[ii], jjj[jj]]
                     expected = np.linalg.det(aa)
                     self.assertAlmostEqual(expected, result[n])
-                
+
     def test_01_02_cofactor_1x3x3(self):
         np.random.seed(12)
         a = np.random.uniform(size=(1,3,3))
@@ -1576,7 +1576,7 @@ class TestCofactorN(unittest.TestCase):
                     aa = a[n][iii[ii], jjj[jj]]
                     expected = np.linalg.det(aa)
                     self.assertAlmostEqual(expected, result[n])
-                
+
     def test_01_03_cofactor_nx4x4(self):
         np.random.seed(13)
         a = np.random.uniform(size=(21,4,4))
@@ -1591,7 +1591,7 @@ class TestCofactorN(unittest.TestCase):
                     aa = a[n][iii[ii], jjj[jj]]
                     expected = np.linalg.det(aa)
                     self.assertAlmostEqual(expected, result[n])
-                
+
 class TestInvN(unittest.TestCase):
     def test_01_01_inv_1x1x1(self):
         np.random.seed(11)
@@ -1599,7 +1599,7 @@ class TestInvN(unittest.TestCase):
         result = F.inv_n(a)
         self.assertEqual(len(result), 1)
         self.assertEqual(a[0,0,0], 1/result[0])
-        
+
     def test_01_02_inv_1x2x2(self):
         np.random.seed(12)
         a = np.random.uniform(size=(1,2,2))
@@ -1620,18 +1620,18 @@ class TestInvN(unittest.TestCase):
         result = F.inv_n(a)
         expected = np.array([np.linalg.inv(a[i]) for i in range(len(a))])
         np.testing.assert_almost_equal(result, expected)
-        
+
 class TestConvexHullTransform(unittest.TestCase):
     def test_01_01_zeros(self):
         '''The convex hull transform of an array of identical values is itself'''
         self.assertTrue(np.all(F.convex_hull_transform(np.zeros((10,20))) == 0))
-        
+
     def test_01_02_point(self):
         '''The convex hull transform of 1 foreground pixel is itself'''
         image = np.zeros((10,20))
         image[5,10] = 1
         self.assertTrue(np.all(F.convex_hull_transform(image) == image))
-        
+
     def test_01_03_line(self):
         '''The convex hull transform of a line of foreground pixels is itself'''
         image = np.zeros((10,20))
@@ -1640,11 +1640,11 @@ class TestConvexHullTransform(unittest.TestCase):
 
     def test_01_04_convex(self):
         '''The convex hull transform of a convex figure is itself'''
-        
+
         image = np.zeros((10,20))
         image[2:7, 7:14] = 1
         self.assertTrue(np.all(F.convex_hull_transform(image) == image))
-        
+
     def test_01_05_concave(self):
         '''The convex hull transform of a concave figure is the convex hull'''
         expected = np.zeros((10, 20))
@@ -1652,10 +1652,10 @@ class TestConvexHullTransform(unittest.TestCase):
         image = expected.copy()
         image[4:6, 7:10] = .5
         self.assertTrue(np.all(F.convex_hull_transform(image) == expected))
-        
+
     def test_02_01_two_levels(self):
         '''Test operation on two grayscale levels'''
-        
+
         expected = np.zeros((20, 30))
         expected[3:18, 3:27] = .5
         expected[8:15, 10:20] = 1
@@ -1664,7 +1664,7 @@ class TestConvexHullTransform(unittest.TestCase):
         image[10,:] = 0
         # need an odd # of bins in order to have .5 be a bin
         self.assertTrue(np.all(F.convex_hull_transform(image, 7) == expected))
-        
+
     def test_03_01_masked(self):
         '''Test operation on a masked image'''
 
@@ -1677,10 +1677,10 @@ class TestConvexHullTransform(unittest.TestCase):
         mask = np.ones((20,30), bool)
         mask[:,0] = False
         image[:,0] = .75
-        
+
         result = F.convex_hull_transform(image, levels = 7, mask = mask)
         self.assertTrue(np.all(result == expected))
-        
+
     def test_03_02_all_masked(self):
         # Regression test of 1286 - exception if totally masked image
         #
@@ -1689,7 +1689,7 @@ class TestConvexHullTransform(unittest.TestCase):
         image = np.sqrt(i*i + j*j)
         mask = np.zeros(image.shape, bool)
         F.convex_hull_transform(image, levels=8, mask=mask)
-        
+
     def test_04_01_many_chunks(self):
         '''Test the two-pass at a single level chunk looping'''
         np.random.seed(41)
@@ -1710,7 +1710,7 @@ class TestConvexHullTransform(unittest.TestCase):
         self.assertTrue(np.sum(diff > 1/256.) <= np.sum(holes))
         expected = F.convex_hull_transform(image, pass_cutoff = 256)
         np.testing.assert_equal(result, expected)
-    
+
     def test_04_02_two_pass(self):
         '''Test the two-pass at multiple levels chunk looping'''
         np.random.seed(42)
@@ -1728,13 +1728,13 @@ class TestConvexHullTransform(unittest.TestCase):
                                          pass_cutoff = 256)
         expected = F.convex_hull_transform(image, pass_cutoff = 256)
         np.testing.assert_equal(result, expected)
-        
+
 class TestCircularHough(unittest.TestCase):
     def test_01_01_nothing(self):
         img = np.zeros((10,20))
         result = F.circular_hough(img, 4)
         self.assertTrue(np.all(result == 0))
-        
+
     def test_01_02_circle(self):
         i,j = np.mgrid[-15:16,-15:16]
         circle = np.abs(np.sqrt(i*i+j*j) - 6) <= 1.5
@@ -1742,7 +1742,7 @@ class TestCircularHough(unittest.TestCase):
         img = F.circular_hough(circle, 6)
         self.assertEqual(img[15,15], 1)
         self.assertTrue(np.all(img[np.abs(np.sqrt(i*i+j*j) - 6) < 1.5] < .25))
-        
+
     def test_01_03_masked(self):
         img = np.zeros((31,62))
         mask = np.ones((31,62), bool)
@@ -1756,13 +1756,13 @@ class TestCircularHough(unittest.TestCase):
         result = F.circular_hough(img, 6, mask=mask)
         self.assertEqual(result[15,15], 1)
         self.assertEqual(result[15,15+31], 0)
-        
+
 class TestLineIntegration(unittest.TestCase):
     def test_01_01_nothing(self):
         img = np.zeros((23,17))
         result = F.line_integration(img, 0, .95, 2.0)
         np.testing.assert_almost_equal(result, 0)
-        
+
     def test_01_02_two_lines(self):
         img = np.ones((20,30)) * .5
         img[8,10:20] = 1
@@ -1773,7 +1773,7 @@ class TestLineIntegration(unittest.TestCase):
         expected[8,10:20] = .5
         expected[12,10:20] = .5
         np.testing.assert_almost_equal(result, expected)
-        
+
     def test_01_03_diagonal_lines(self):
         img = np.ones((20,30)) * .5
         i,j = np.mgrid[0:20,0:30]
@@ -1784,7 +1784,7 @@ class TestLineIntegration(unittest.TestCase):
         result = F.line_integration(img, -45, 1, 0)
         self.assertTrue(np.mean(result[expected]) > .5)
         self.assertTrue(np.mean(result[~ expected]) < .25)
-        
+
     def test_01_04_decay(self):
         img = np.ones((25,23)) * .5
         img[10,10] = 1
@@ -1792,12 +1792,12 @@ class TestLineIntegration(unittest.TestCase):
         result = F.line_integration(img, 0, .9, 0)
         decay_part = result[11:20,10]
         expected = .9 ** np.arange(1,10) + .9 ** np.arange(9,0,-1)
-        expected = ((expected - np.min(expected)) / 
+        expected = ((expected - np.min(expected)) /
                     (np.max(expected) - np.min(expected)))
         decay_part = ((decay_part - np.min(decay_part)) /
                       (np.max(decay_part) - np.min(decay_part)))
         np.testing.assert_almost_equal(decay_part, expected)
-    
+
     def test_01_05_smooth(self):
         img = np.ones((30,20)) * .5
         img[10,10] = 1
@@ -1813,7 +1813,7 @@ class TestVarianceTransform(unittest.TestCase):
     def test_01_00_zeros(self):
         result = F.variance_transform(np.zeros((30,20)), 1)
         np.testing.assert_almost_equal(result, 0)
-        
+
     def test_01_01_transform(self):
         r = np.random.RandomState()
         r.seed(11)
@@ -1832,7 +1832,7 @@ class TestVarianceTransform(unittest.TestCase):
         norm = img - mean
         var = np.sum(norm * norm * weight)
         self.assertAlmostEqual(var, result[center_i, center_j], 5)
-    
+
     def test_01_02_transform_masked(self):
         r = np.random.RandomState()
         r.seed(12)
@@ -1854,20 +1854,20 @@ class TestVarianceTransform(unittest.TestCase):
         norm = img - mean
         var = np.sum(norm * norm * weight)
         self.assertAlmostEqual(var, result[center_i, center_j], 5)
-        
+
 class TestPoissonEquation(unittest.TestCase):
     def test_00_00_nothing(self):
         image = np.zeros((11, 14), bool)
         p = F.poisson_equation(image)
         np.testing.assert_array_equal(p, 0)
-        
+
     def test_00_01_single(self):
         image = np.zeros((11, 14), bool)
         image[7, 3] = True
         p = F.poisson_equation(image)
         np.testing.assert_array_equal(p[image], 1)
         np.testing.assert_array_equal(p[~image], 0)
-        
+
     def test_01_01_simple(self):
         image = np.array(
             [ [ 0, 0, 0, 0, 0 ],
@@ -1886,7 +1886,7 @@ class TestPoissonEquation(unittest.TestCase):
               [ 0, 0, 0, 0, 0 ]])
         p = F.poisson_equation(image, convergence=.00001)
         np.testing.assert_almost_equal(p, expected, 4)
-        
+
     def test_01_02_boundary(self):
         # Test an image with pixels at the boundaries.
         image = np.array(
@@ -1902,7 +1902,7 @@ class TestPoissonEquation(unittest.TestCase):
               [ 0, a, 0 ]])
         p = F.poisson_equation(image, convergence=.00001)
         np.testing.assert_almost_equal(p, expected, 4)
-        
+
     def test_01_03_subsampling(self):
         # Test an image that is large enough to undergo some subsampling
         #
