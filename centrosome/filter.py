@@ -18,10 +18,10 @@ CONVEX_HULL_CHUNKSIZE = 250000
 
 def stretch(image, mask=None):
     '''Normalize an image to make the minimum zero and maximum one
-    
+
     image - pixel data to be normalized
     mask  - optional mask of relevant pixels. None = don't mask
-    
+
     returns the stretched image
     '''
     image = np.array(image, float)
@@ -55,7 +55,7 @@ def stretch(image, mask=None):
 
 def unstretch(image, minval, maxval):
     '''Perform the inverse of stretch, given a stretched image
-    
+
     image - an image stretched by stretch or similarly scaled value or values
     minval - minimum of previously stretched image
     maxval - maximum of previously stretched image
@@ -64,7 +64,7 @@ def unstretch(image, minval, maxval):
 
 def median_filter(data, mask, radius, percent=50):
     '''Masked median filter with octagonal shape
-    
+
     data - array of data to be median filtered.
     mask - mask of significant pixels in data
     radius - the radius of a circle inscribed into the filtering octagon
@@ -91,11 +91,11 @@ def median_filter(data, mask, radius, percent=50):
         was_ranked = False
     input = np.zeros(data.shape, np.uint8 )
     input[mask] = ranked_data
-    
+
     mmask = np.ascontiguousarray(mask, np.uint8)
-    
+
     output = np.zeros(data.shape, np.uint8)
-    
+
     _filter.median_filter(input, mmask, output, radius, percent)
     if was_ranked:
         result = translation[output]
@@ -106,7 +106,7 @@ def median_filter(data, mask, radius, percent=50):
 def bilateral_filter(image, mask, sigma_spatial, sigma_range,
                      sampling_spatial = None, sampling_range = None):
     """Bilateral filter of an image
-    
+
     image - image to be bilaterally filtered
     mask  - mask of significant points in image
     sigma_spatial - standard deviation of the spatial Gaussian
@@ -115,9 +115,9 @@ def bilateral_filter(image, mask, sigma_spatial, sigma_range,
                        default is 1/2 sigma_spatial
     sampling_range - amt to reduce the range of values when sampling
                      default is 1/2 sigma_range
-    
+
     The bilateral filter is described by the following equation:
-    
+
     sum(Fs(||p - q||)Fr(|Ip - Iq|)Iq) / sum(Fs(||p-q||)Fr(|Ip - Iq))
     where the sum is over all points in the kernel
     p is all coordinates in the image
@@ -128,9 +128,9 @@ def bilateral_filter(image, mask, sigma_spatial, sigma_range,
     falls off as the distance between falls off
     Fr is the "range" distance which falls off as the difference
     in intensity increases.
-    
+
     1 / sum(Fs(||p-q||)Fr(|Ip - Iq)) is the weighting for point p
-    
+
     """
     # The algorithm is taken largely from code by Jiawen Chen which miraculously
     # extends to the masked case:
@@ -139,15 +139,15 @@ def bilateral_filter(image, mask, sigma_spatial, sigma_range,
     # Form a 3-d array whose extent is reduced in the i,j directions
     # by the spatial sampling parameter and whose extent is reduced in the
     # z (image intensity) direction by the range sampling parameter.
-    
+
     # Scatter each significant pixel in the image into the nearest downsampled
     # array address where the pixel's i,j coordinate gives the corresponding
     # i and j in the matrix and the intensity value gives the corresponding z
     # in the array.
-    
+
     # Count the # of values entered into each 3-d array element to form a
     # weight.
-    
+
     # Similarly convolve the downsampled value and weight arrays with a 3-d
     # Gaussian kernel whose i and j Gaussian is the sigma_spatial and whose
     # z is the sigma_range.
@@ -156,19 +156,19 @@ def bilateral_filter(image, mask, sigma_spatial, sigma_range,
     #
     # Linearly interpolate using an i x j x 3 array where [:,:,0] is the
     # i coordinate in the downsampled array, [:,:,1] is the j coordinate
-    # and [:,:,2] is the unrounded index of the z-slot 
+    # and [:,:,2] is the unrounded index of the z-slot
     #
     # One difference is that I don't pad the intermediate arrays. The
     # weights bleed off the edges of the intermediate arrays and this
     # accounts for the ring of zero values used at the border bleeding
     # back into the intermediate arrays during convolution
     #
-     
+
     if sampling_spatial is None:
         sampling_spatial = sigma_spatial / 2.0
     if sampling_range is None:
         sampling_range = sigma_range / 2.0
-    
+
     if np.all(np.logical_not(mask)):
         return image
     masked_image = image[mask]
@@ -177,7 +177,7 @@ def bilateral_filter(image, mask, sigma_spatial, sigma_range,
     image_delta = image_max - image_min
     if image_delta == 0:
         return image
-    
+
     #
     # ds = downsampled. Calculate the ds array sizes and sigmas.
     #
@@ -186,7 +186,7 @@ def bilateral_filter(image, mask, sigma_spatial, sigma_range,
     ds_i_limit       = int(image.shape[0] / sampling_spatial) + 2
     ds_j_limit       = int(image.shape[1] / sampling_spatial) + 2
     ds_z_limit       = int(image_delta / sampling_range) + 2
-    
+
     grid_data    = np.zeros((ds_i_limit, ds_j_limit, ds_z_limit))
     grid_weights = np.zeros((ds_i_limit, ds_j_limit, ds_z_limit))
     #
@@ -204,10 +204,10 @@ def bilateral_filter(image, mask, sigma_spatial, sigma_range,
     # scatter the unmasked image points into the data array and
     # scatter a value of 1 per point into the weights
     #
-    grid_data[(di + .5).astype(int), 
+    grid_data[(di + .5).astype(int),
               (dj + .5).astype(int),
               (dz + .5).astype(int)] += masked_image
-    grid_weights[(di + .5).astype(int), 
+    grid_weights[(di + .5).astype(int),
                  (dj + .5).astype(int),
                  (dz + .5).astype(int)] += 1
     #
@@ -220,7 +220,7 @@ def bilateral_filter(image, mask, sigma_spatial, sigma_range,
                         -kernel_range_limit : kernel_range_limit+1]
     kernel = np.exp(-.5 * ((ki**2 + kj**2) / ds_sigma_spatial ** 2 +
                            kz**2 / ds_sigma_range ** 2))
-     
+
     blurred_grid_data = convolve(grid_data, kernel, mode='constant')
     blurred_weights = convolve(grid_weights, kernel, mode='constant')
     weight_mask = blurred_weights > 0
@@ -241,14 +241,14 @@ def bilateral_filter(image, mask, sigma_spatial, sigma_range,
 
 def laplacian_of_gaussian(image, mask, size, sigma):
     '''Perform the Laplacian of Gaussian transform on the image
-    
+
     image - 2-d image array
     mask  - binary mask of significant pixels
     size  - length of side of square kernel to use
     sigma - standard deviation of the Gaussian
     '''
     half_size = size/2
-    i,j = np.mgrid[-half_size:half_size+1, 
+    i,j = np.mgrid[-half_size:half_size+1,
                    -half_size:half_size+1].astype(float) / float(sigma)
     distance = (i**2 + j**2)/2
     gaussian = np.exp(-distance)
@@ -287,15 +287,15 @@ def masked_convolution(data, mask, kernel):
 
 def canny(image, mask, sigma, low_threshold, high_threshold):
     '''Edge filter an image using the Canny algorithm.
-    
+
     sigma - the standard deviation of the Gaussian used
     low_threshold - threshold for edges that connect to high-threshold
                     edges
     high_threshold - threshold of a high-threshold edge
-    
-    Canny, J., A Computational Approach To Edge Detection, IEEE Trans. 
+
+    Canny, J., A Computational Approach To Edge Detection, IEEE Trans.
     Pattern Analysis and Machine Intelligence, 8:679-714, 1986
-    
+
     William Green's Canny tutorial
     http://www.pages.drexel.edu/~weg22/can_tut.html
     '''
@@ -350,8 +350,8 @@ def canny(image, mask, sigma, low_threshold, high_threshold):
     #
     local_maxima = np.zeros(image.shape,bool)
     #----- 0 to 45 degrees ------
-    pts_plus = np.logical_and(isobel >= 0, 
-                              np.logical_and(jsobel >= 0, 
+    pts_plus = np.logical_and(isobel >= 0,
+                              np.logical_and(jsobel >= 0,
                                              abs_isobel >= abs_jsobel))
     pts_minus = np.logical_and(isobel <= 0,
                                np.logical_and(jsobel <= 0,
@@ -373,11 +373,11 @@ def canny(image, mask, sigma, low_threshold, high_threshold):
     #----- 45 to 90 degrees ------
     # Mix diagonal and vertical
     #
-    pts_plus = np.logical_and(isobel >= 0, 
-                              np.logical_and(jsobel >= 0, 
+    pts_plus = np.logical_and(isobel >= 0,
+                              np.logical_and(jsobel >= 0,
                                              abs_isobel <= abs_jsobel))
     pts_minus = np.logical_and(isobel <= 0,
-                               np.logical_and(jsobel <= 0, 
+                               np.logical_and(jsobel <= 0,
                                               abs_isobel <= abs_jsobel))
     pts = np.logical_or(pts_plus, pts_minus)
     pts = np.logical_and(emask, pts)
@@ -393,11 +393,11 @@ def canny(image, mask, sigma, low_threshold, high_threshold):
     #----- 90 to 135 degrees ------
     # Mix anti-diagonal and vertical
     #
-    pts_plus = np.logical_and(isobel <= 0, 
-                              np.logical_and(jsobel >= 0, 
+    pts_plus = np.logical_and(isobel <= 0,
+                              np.logical_and(jsobel >= 0,
                                              abs_isobel <= abs_jsobel))
     pts_minus = np.logical_and(isobel >= 0,
-                               np.logical_and(jsobel <= 0, 
+                               np.logical_and(jsobel <= 0,
                                               abs_isobel <= abs_jsobel))
     pts = np.logical_or(pts_plus, pts_minus)
     pts = np.logical_and(emask, pts)
@@ -414,11 +414,11 @@ def canny(image, mask, sigma, low_threshold, high_threshold):
     #----- 135 to 180 degrees ------
     # Mix anti-diagonal and anti-horizontal
     #
-    pts_plus = np.logical_and(isobel <= 0, 
-                              np.logical_and(jsobel >= 0, 
+    pts_plus = np.logical_and(isobel <= 0,
+                              np.logical_and(jsobel >= 0,
                                              abs_isobel >= abs_jsobel))
     pts_minus = np.logical_and(isobel >= 0,
-                               np.logical_and(jsobel <= 0, 
+                               np.logical_and(jsobel <= 0,
                                               abs_isobel >= abs_jsobel))
     pts = np.logical_or(pts_plus, pts_minus)
     pts = np.logical_and(emask, pts)
@@ -438,31 +438,31 @@ def canny(image, mask, sigma, low_threshold, high_threshold):
     low_mask  = np.logical_and(local_maxima, magnitude >= low_threshold)
     #
     # Segment the low-mask, then only keep low-segments that have
-    # some high_mask component in them 
+    # some high_mask component in them
     #
     labels,count = label(low_mask, np.ones((3,3),bool))
     if count == 0:
         return low_mask
-    
+
     sums = fix(scind.sum(high_mask, labels, np.arange(count,dtype=np.int32)+1))
     good_label = np.zeros((count+1,),bool)
     good_label[1:] = sums > 0
     output_mask = good_label[labels]
-    return output_mask  
+    return output_mask
 
 def roberts(image, mask=None):
     '''Find edges using the Roberts algorithm
-    
+
     image - the image to process
     mask  - mask of relevant points
-    
+
     The algorithm returns the magnitude of the output of the two Roberts
     convolution kernels.
-    
+
     The following is the canonical citation for the algorithm:
-    L. Roberts Machine Perception of 3-D Solids, Optical and 
+    L. Roberts Machine Perception of 3-D Solids, Optical and
     Electro-optical Information Processing, MIT Press 1965.
-    
+
     The following website has a tutorial on the algorithm:
     http://homepages.inf.ed.ac.uk/rbf/HIPR2/roberts.htm
     '''
@@ -495,14 +495,14 @@ def roberts(image, mask=None):
 
 def sobel(image, mask=None):
     '''Calculate the absolute magnitude Sobel to find the edges
-    
+
     image - image to process
     mask - mask of relevant points
-    
+
     Take the square root of the sum of the squares of the horizontal and
     vertical Sobels to get a magnitude that's somewhat insensitive to
     direction.
-    
+
     Note that scipy's Sobel returns a directional Sobel which isn't
     useful for edge detection in its raw form.
     '''
@@ -510,10 +510,10 @@ def sobel(image, mask=None):
 
 def hsobel(image, mask=None):
     '''Find the horizontal edges of an image using the Sobel transform
-    
+
     image - image to process
     mask  - mask of relevant points
-    
+
     We use the following kernel and return the absolute value of the
     result at each point:
      1   2   1
@@ -533,10 +533,10 @@ def hsobel(image, mask=None):
 
 def vsobel(image, mask=None):
     '''Find the vertical edges of an image using the Sobel transform
-    
+
     image - image to process
     mask  - mask of relevant points
-    
+
     We use the following kernel and return the absolute value of the
     result at each point:
      1   0  -1
@@ -556,21 +556,21 @@ def vsobel(image, mask=None):
 
 def prewitt(image, mask=None):
     '''Find the edge magnitude using the Prewitt transform
-    
+
     image - image to process
     mask  - mask of relevant points
-    
+
     Return the square root of the sum of squares of the horizontal
     and vertical Prewitt transforms.
     '''
     return np.sqrt(hprewitt(image,mask)**2 + vprewitt(image,mask)**2)
-     
+
 def hprewitt(image, mask=None):
     '''Find the horizontal edges of an image using the Prewitt transform
-    
+
     image - image to process
     mask  - mask of relevant points
-    
+
     We use the following kernel and return the absolute value of the
     result at each point:
      1   1   1
@@ -590,10 +590,10 @@ def hprewitt(image, mask=None):
 
 def vprewitt(image, mask=None):
     '''Find the vertical edges of an image using the Prewitt transform
-    
+
     image - image to process
     mask  - mask of relevant points
-    
+
     We use the following kernel and return the absolute value of the
     result at each point:
      1   0  -1
@@ -613,12 +613,12 @@ def vprewitt(image, mask=None):
 
 def gabor(image, labels, frequency, theta):
     '''Gabor-filter the objects in an image
-    
+
     image - 2-d grayscale image to filter
     labels - a similarly shaped labels matrix
     frequency - cycles per trip around the circle
     theta - angle of the filter. 0 to 2 pi
-    
+
     Calculate the Gabor filter centered on the centroids of each object
     in the image. Summing the resulting image over the labels matrix will
     yield a texture measure per object.
@@ -692,53 +692,53 @@ def enhance_dark_holes(image, min_radius, max_radius, mask=None):
     return smoothed_image
 
 def circular_average_filter(image, radius, mask=None):
-    '''Blur an image using a circular averaging filter (pillbox)  
+    '''Blur an image using a circular averaging filter (pillbox)
 
     image - grayscale 2-d image
     radii - radius of filter in pixels
-    
+
     The filter will be within a square matrix of side 2*radius+1
-    
+
     This code is translated straight from MATLAB's fspecial function
     '''
-    
+
     crad = np.ceil(radius-0.5)
-    x,y = np.mgrid[-crad:crad+1,-crad:crad+1].astype(float) 
+    x,y = np.mgrid[-crad:crad+1,-crad:crad+1].astype(float)
     maxxy = np.maximum(abs(x),abs(y))
     minxy = np.minimum(abs(x),abs(y))
-    
-    m1 = ((radius **2 < (maxxy+0.5)**2 + (minxy-0.5)**2)*(minxy-0.5) + 
-      (radius**2 >= (maxxy+0.5)**2 + (minxy-0.5)**2) * 
-      np.real(np.sqrt(np.asarray(radius**2 - (maxxy + 0.5)**2,dtype=complex)))) 
-    m2 = ((radius**2 >  (maxxy-0.5)**2 + (minxy+0.5)**2)*(minxy+0.5) + 
+
+    m1 = ((radius **2 < (maxxy+0.5)**2 + (minxy-0.5)**2)*(minxy-0.5) +
+      (radius**2 >= (maxxy+0.5)**2 + (minxy-0.5)**2) *
+      np.real(np.sqrt(np.asarray(radius**2 - (maxxy + 0.5)**2,dtype=complex))))
+    m2 = ((radius**2 >  (maxxy-0.5)**2 + (minxy+0.5)**2)*(minxy+0.5) +
       (radius**2 <= (maxxy-0.5)**2 + (minxy+0.5)**2)*
       np.real(np.sqrt(np.asarray(radius**2 - (maxxy - 0.5)**2,dtype=complex))))
-    
-    sgrid = ((radius**2*(0.5*(np.arcsin(m2/radius) - np.arcsin(m1/radius)) + 
-          0.25*(np.sin(2*np.arcsin(m2/radius)) - np.sin(2*np.arcsin(m1/radius)))) - 
-         (maxxy-0.5)*(m2-m1) + (m1-minxy+0.5)) *  
-         ((((radius**2 < (maxxy+0.5)**2 + (minxy+0.5)**2) & 
-         (radius**2 > (maxxy-0.5)**2 + (minxy-0.5)**2)) | 
-         ((minxy == 0) & (maxxy-0.5 < radius) & (maxxy+0.5 >= radius)))) ) 
-    
-    sgrid = sgrid + ((maxxy+0.5)**2 + (minxy+0.5)**2 < radius**2) 
-    sgrid[crad,crad] = np.minimum(np.pi*radius**2,np.pi/2) 
-    if ((crad>0) and (radius > crad-0.5) and (radius**2 < (crad-0.5)**2+0.25)): 
-        m1  = np.sqrt(radius**2 - (crad - 0.5)**2) 
-        m1n = m1/radius 
+
+    sgrid = ((radius**2*(0.5*(np.arcsin(m2/radius) - np.arcsin(m1/radius)) +
+          0.25*(np.sin(2*np.arcsin(m2/radius)) - np.sin(2*np.arcsin(m1/radius)))) -
+         (maxxy-0.5)*(m2-m1) + (m1-minxy+0.5)) *
+         ((((radius**2 < (maxxy+0.5)**2 + (minxy+0.5)**2) &
+         (radius**2 > (maxxy-0.5)**2 + (minxy-0.5)**2)) |
+         ((minxy == 0) & (maxxy-0.5 < radius) & (maxxy+0.5 >= radius)))) )
+
+    sgrid = sgrid + ((maxxy+0.5)**2 + (minxy+0.5)**2 < radius**2)
+    sgrid[crad,crad] = np.minimum(np.pi*radius**2,np.pi/2)
+    if ((crad>0) and (radius > crad-0.5) and (radius**2 < (crad-0.5)**2+0.25)):
+        m1  = np.sqrt(radius**2 - (crad - 0.5)**2)
+        m1n = m1/radius
         sg0 = 2*(radius**2*(0.5*np.arcsin(m1n) + 0.25*np.sin(2*np.arcsin(m1n)))-m1*(crad-0.5))
         sgrid[2*crad,crad]   = sg0
         sgrid[crad,2*crad]   = sg0
-        sgrid[crad,0]        = sg0 
+        sgrid[crad,0]        = sg0
         sgrid[0,crad]        = sg0
         sgrid[2*crad-1,crad] = sgrid[2*crad-1,crad] - sg0
         sgrid[crad,2*crad-1] = sgrid[crad,2*crad-1] - sg0
-        sgrid[crad,1]        = sgrid[crad,1]        - sg0 
-        sgrid[1,crad]        = sgrid[1,crad]        - sg0 
-    
-    sgrid[crad,crad] = np.minimum(sgrid[crad,crad],1) 
+        sgrid[crad,1]        = sgrid[crad,1]        - sg0
+        sgrid[1,crad]        = sgrid[1,crad]        - sg0
+
+    sgrid[crad,crad] = np.minimum(sgrid[crad,crad],1)
     kernel = sgrid/sgrid.sum()
-    
+
     output = convolve(image, kernel, mode='constant')
     if mask is None:
         mask = np.ones(image.shape,np.uint8)
@@ -746,12 +746,12 @@ def circular_average_filter(image, radius, mask=None):
         mask = np.array(mask, np.uint8)
     output = masked_convolution(image, mask, kernel)
     output[mask==0] = image[mask==0]
-    
+
     return output
 
 #######################################
-# 
-# Structure and ideas for the Kalman filter derived from u-track 
+#
+# Structure and ideas for the Kalman filter derived from u-track
 # as described in
 #
 #  Jaqaman, "Robust single-particle tracking in live-cell
@@ -760,15 +760,15 @@ def circular_average_filter(image, radius, mask=None):
 #######################################
 class KalmanState(object):
     '''A data structure representing the state at a frame
-    
+
     The original method uses "feature" to mean the same thing as
     CellProfiler's "object".
-    
+
     The state vector is somewhat abstract: it's up to the caller to
     determine what each of the indices mean. For instance, in a model
     with a 2-d position and velocity component, the state might be
     i, j, di, dj
-    
+
     .observation_matrix - matrix to transform the state vector into the
                           observation vector. The observation matrix gives
                           the dimensions of the observation vector from its
@@ -776,35 +776,35 @@ class KalmanState(object):
                           from its j-shape. For observations of position
                           and states with velocity, the observation matrix
                           might be:
-                          
+
                           np.array([[1,0,0,0],
                                     [0,1,0,0]])
-                          
+
     .translation_matrix - matrix to translate the state vector from t-1 to t
                           For instance, the translation matrix for position
                           and velocity might be:
-                          
+
                           np.array([[1,0,1,0],
                                     [0,1,0,1],
                                     [0,0,1,0],
                                     [0,0,0,1]])
-    
+
     .state_vec - an array of vectors per feature
-    
+
     .state_cov - the covariance matrix yielding the prediction. Each feature
                 has a 4x4 matrix that can be used to predict the new value
-                
+
     .noise_var - the variance of the state noise for each feature for each
                 vector element
-                
+
     .state_noise - a N x 4 array: the state noise for the i, j, vi and vj
-    
+
     .state_noise_idx - the feature indexes for each state noise vector
-    
+
     .obs_vec   - the prediction for the observed variables
     '''
-    
-    def __init__(self, 
+
+    def __init__(self,
                  observation_matrix,
                  translation_matrix,
                  state_vec = None,
@@ -834,7 +834,7 @@ class KalmanState(object):
             self.state_noise_idx = state_noise_idx
         else:
             self.state_noise_idx = np.zeros(0, int)
-    
+
     @property
     def state_len(self):
         '''# of elements in the state vector'''
@@ -848,11 +848,11 @@ class KalmanState(object):
     def has_cached_predicted_state_vec(self):
         '''True if next state vec has been calculated'''
         return hasattr(self, "p_state_vec")
-    
+
     @property
     def predicted_state_vec(self):
         '''The predicted state vector for the next time point
-        
+
         From Welch eqn 1.9
         '''
         if not self.has_cached_predicted_state_vec:
@@ -860,16 +860,16 @@ class KalmanState(object):
                 self.translation_matrix,
                 self.state_vec[:, :, np.newaxis])[:,:,0]
         return self.p_state_vec
-    
+
     @property
     def has_cached_obs_vec(self):
         '''True if the observation vector for the next state has been calculated'''
         return hasattr(self, "obs_vec")
-    
+
     @property
     def predicted_obs_vec(self):
         '''The predicted observation vector
-        
+
         The observation vector for the next step in the filter.
         '''
         if not self.has_cached_obs_vec:
@@ -877,10 +877,10 @@ class KalmanState(object):
                 self.observation_matrix,
                 self.predicted_state_vec[:,:,np.newaxis])[:,:,0]
         return self.obs_vec
-    
+
     def map_frames(self, old_indices):
         '''Rewrite the feature indexes based on the next frame's identities
-        
+
         old_indices - for each feature in the new frame, the index of the
                       old feature
         '''
@@ -907,37 +907,37 @@ class KalmanState(object):
                 self.state_noise_idx = reverse_indices[self.state_noise_idx]
                 self.state_noise = self.state_noise[self.state_noise_idx != -1,:]
                 self.state_noise_idx = self.state_noise_idx[self.state_noise_idx != -1]
-    
+
     def add_features(self, kept_indices, new_indices,
                      new_state_vec, new_state_cov, new_noise_var):
         '''Add new features to the state
-        
+
         kept_indices - the mapping from all indices in the state to new
                        indices in the new version
-                       
+
         new_indices - the indices of the new features in the new version
-        
+
         new_state_vec - the state vectors for the new indices
-        
+
         new_state_cov - the covariance matrices for the new indices
-        
+
         new_noise_var - the noise variances for the new indices
         '''
         assert len(kept_indices) == len(self.state_vec)
         assert len(new_indices) == len(new_state_vec)
         assert len(new_indices) == len(new_state_cov)
         assert len(new_indices) == len(new_noise_var)
-        
+
         if self.has_cached_obs_vec:
             del self.obs_vec
         if self.has_cached_predicted_state_vec:
             del self.predicted_obs_vec
-        
+
         nfeatures = len(kept_indices) + len(new_indices)
         next_state_vec = np.zeros((nfeatures, self.state_len))
         next_state_cov = np.zeros((nfeatures, self.state_len, self.state_len))
         next_noise_var = np.zeros((nfeatures, self.state_len))
-        
+
         if len(kept_indices) > 0:
             next_state_vec[kept_indices] = self.state_vec
             next_state_cov[kept_indices] = self.state_cov
@@ -951,7 +951,7 @@ class KalmanState(object):
         self.state_vec = next_state_vec
         self.state_cov = next_state_cov
         self.noise_var = next_noise_var
-        
+
     def deep_copy(self):
         '''Return a deep copy of the state'''
         c = KalmanState(self.observation_matrix, self.translation_matrix)
@@ -961,13 +961,13 @@ class KalmanState(object):
         c.state_noise = self.state_noise.copy()
         c.state_noise_idx = self.state_noise_idx.copy()
         return c
-    
+
 LARGE_KALMAN_COV = 2000
 SMALL_KALMAN_COV = 1
 
 def velocity_kalman_model():
     '''Return a KalmanState set up to model objects with constant velocity
-    
+
     The observation and measurement vectors are i,j.
     The state vector is i,j,vi,vj
     '''
@@ -989,30 +989,30 @@ def reverse_velocity_kalman_model():
 
 def static_kalman_model():
     '''Return a KalmanState set up to model objects whose motion is random
-    
+
     The observation, measurement and state vectors are all i,j
     '''
     return KalmanState(np.eye(2), np.eye(2))
 
 def kalman_filter(kalman_state, old_indices, coordinates, q, r):
     '''Return the kalman filter for the features in the new frame
-    
+
     kalman_state - state from last frame
-    
+
     old_indices - the index per feature in the last frame or -1 for new
-    
+
     coordinates - Coordinates of the features in the new frame.
-    
+
     q - the process error covariance - see equ 1.3 and 1.10 from Welch
-    
+
     r - measurement error covariance of features - see eqn 1.7 and 1.8 from welch.
-    
+
     returns a new KalmanState containing the kalman filter of
     the last state by the given coordinates.
-    
+
     Refer to kalmanGainLinearMotion.m and
     http://www.cs.unc.edu/~welch/media/pdf/kalman_intro.pdf
-    
+
     for info on the algorithm.
     '''
     assert isinstance(kalman_state, KalmanState)
@@ -1048,7 +1048,7 @@ def kalman_filter(kalman_state, old_indices, coordinates, q, r):
         # From eqn 1.11 of welch
         #
         kalman_gain_numerator = dot_n(state_cov, observation_matrix_t)
-        
+
         kalman_gain_denominator = dot_n(
             dot_n(kalman_state.observation_matrix, state_cov),
                   observation_matrix_t) + r[matching]
@@ -1064,8 +1064,8 @@ def kalman_filter(kalman_state, old_indices, coordinates, q, r):
         #
         # Eqn 1.13 of Welch (factored from (I - KH)P to P - KHP)
         #
-        state_cov = (state_cov - 
-                     dot_n(dot_n(kalman_gain, kalman_state.observation_matrix), 
+        state_cov = (state_cov -
+                     dot_n(dot_n(kalman_gain, kalman_state.observation_matrix),
                            state_cov))
         #
         # Collect all of the state noise in one array. We produce an I and J
@@ -1087,11 +1087,11 @@ def kalman_filter(kalman_state, old_indices, coordinates, q, r):
             noise_var[:, i] = fix(scind.variance(all_state_noise[:, i],
                                                  all_state_noise_idx,
                                                  idx))
-        obs_vec = dot_n(kalman_state.observation_matrix, 
+        obs_vec = dot_n(kalman_state.observation_matrix,
                         state_vec[:,:,np.newaxis])[:,:,0]
         kalman_state = KalmanState(kalman_state.observation_matrix,
                                    kalman_state.translation_matrix,
-                                   state_vec, state_cov, noise_var, 
+                                   state_vec, state_cov, noise_var,
                                    all_state_noise,
                                    all_state_noise_idx)
     else:
@@ -1110,7 +1110,7 @@ def kalman_filter(kalman_state, old_indices, coordinates, q, r):
         #
         nstates = kalman_state.state_len
         nnew_features = len(new_indices)
-        cov_vec = SMALL_KALMAN_COV / np.dot(observation_matrix_t, 
+        cov_vec = SMALL_KALMAN_COV / np.dot(observation_matrix_t,
                                             np.ones(kalman_state.obs_len))
         cov_vec[~ np.isfinite(cov_vec)] = LARGE_KALMAN_COV
         cov_matrix = np.diag(cov_vec)
@@ -1130,18 +1130,18 @@ def kalman_filter(kalman_state, old_indices, coordinates, q, r):
 
 def line_integration(image, angle, decay, sigma):
     '''Integrate the image along the given angle
-    
+
     DIC images are the directional derivative of the underlying
     image. This filter reconstructs the original image by integrating
     along that direction.
-    
+
     image - a 2-dimensional array
-    
+
     angle - shear angle in radians. We integrate perpendicular to this angle
-    
+
     decay - an exponential decay applied to the integration
-    
-    sigma - the standard deviation of a Gaussian which is used to 
+
+    sigma - the standard deviation of a Gaussian which is used to
             smooth the image in the direction parallel to the shear angle.
     '''
     #
@@ -1160,7 +1160,7 @@ def line_integration(image, angle, decay, sigma):
     # We want img_out[:,j+1] to be img_out[:,j] * decay + img[j+1]
     # Could be done by convolution with a ramp, maybe in FFT domain,
     # but we just do a bunch of steps here.
-    # 
+    #
     result_fwd = smoothed.copy()
     for i in range(1,result_fwd.shape[0]):
         result_fwd[i] += result_fwd[i-1] * decay
@@ -1189,10 +1189,10 @@ def line_integration(image, angle, decay, sigma):
 
 def variance_transform(img, sigma, mask=None):
     '''Calculate a weighted variance of the image
-    
+
     This function caluclates the variance of an image, weighting the
     local contributions by a Gaussian.
-    
+
     img - image to be transformed
     sigma - standard deviation of the Gaussian
     mask - mask of relevant pixels in the image
@@ -1250,15 +1250,15 @@ def variance_transform(img, sigma, mask=None):
                 #big_img[
                     #ib[:,np.newaxis,np.newaxis] + ik[np.newaxis, np.newaxis,:],
                     #jb[np.newaxis,:,np.newaxis] + jk[np.newaxis, np.newaxis,:]] -
-                #img_mean[ib[:,np.newaxis,np.newaxis], 
+                #img_mean[ib[:,np.newaxis,np.newaxis],
                          #jb[np.newaxis,:,np.newaxis]])
-            
+
             #var[ii[:,np.newaxis],jj[np.newaxis,:]] = np.sum(
                 #norm_chunk * norm_chunk *
                 #gk[np.newaxis, np.newaxis,:] *
-                #big_mask[ib[:,np.newaxis,np.newaxis] + 
+                #big_mask[ib[:,np.newaxis,np.newaxis] +
                          #ik[np.newaxis, np.newaxis,:],
-                         #jb[np.newaxis,:,np.newaxis] + 
+                         #jb[np.newaxis,:,np.newaxis] +
                          #jk[np.newaxis, np.newaxis,:]], 2)
     ##
     ## Finally, we divide by the Gaussian of the mask to normalize for
@@ -1285,7 +1285,7 @@ def inv_n(x):
                     for j in range(x.shape[1])]
                    for i in range(x.shape[1])]).transpose(2,0,1)
     return c / det_n(x)[:, np.newaxis, np.newaxis]
-    
+
 def det_n(x):
     '''given N matrices, return N determinants'''
     assert x.ndim == 3
@@ -1295,17 +1295,17 @@ def det_n(x):
     result = np.zeros(x.shape[0])
     for permutation in permutations(np.arange(x.shape[1])):
         sign = parity(permutation)
-        result += np.prod([x[:, i, permutation[i]] 
+        result += np.prod([x[:, i, permutation[i]]
                            for i in range(x.shape[1])], 0) * sign
         sign = - sign
     return result
 
 def parity(x):
     '''The parity of a permutation
-    
+
     The parity of a permutation is even if the permutation can be
     formed by an even number of transpositions and is odd otherwise.
-    
+
     The parity of a permutation is even if there are an even number of
     compositions of even size and odd otherwise. A composition is a cycle:
     for instance in (1, 2, 0, 3), there is the cycle: (0->1, 1->2, 2->0)
@@ -1313,7 +1313,7 @@ def parity(x):
     you can exchange 0 and 1 giving (0, 2, 1, 3) and 2 and 1 to get
     (0, 1, 2, 3)
     '''
-    
+
     order = np.lexsort((x,))
     hit = np.zeros(len(x), bool)
     p = 0
@@ -1331,7 +1331,7 @@ def parity(x):
 
 def cofactor_n(x, i, j):
     '''Return the cofactor of n matrices x[n,i,j] at position i,j
-    
+
     The cofactor is the determinant of the matrix formed by removing
     row i and column j.
     '''
@@ -1339,20 +1339,20 @@ def cofactor_n(x, i, j):
     mr = np.arange(m)
     i_idx = mr[mr != i]
     j_idx = mr[mr != j]
-    return det_n(x[:, i_idx[:, np.newaxis], 
+    return det_n(x[:, i_idx[:, np.newaxis],
                       j_idx[np.newaxis, :]])
-    
+
 def dot_n(x, y):
     '''given two tensors N x I x K and N x K x J return N dot products
-    
+
     If either x or y is 2-dimensional, broadcast it over all N.
-    
+
     Dot products are size N x I x J.
     Example:
     x = np.array([[[1,2], [3,4], [5,6]],[[7,8], [9,10],[11,12]]])
     y = np.array([[[1,2,3], [4,5,6]],[[7,8,9],[10,11,12]]])
     print dot_n(x,y)
-    
+
     array([[[  9,  12,  15],
         [ 19,  26,  33],
         [ 29,  40,  51]],
@@ -1377,21 +1377,21 @@ def dot_n(x, y):
         x3 = True
         y3 = True
     assert x.shape[1+x3] == y.shape[0+y3]
-    n, i, j, k = np.mgrid[0:nlen, 0:x.shape[0+x3], 0:y.shape[1+y3], 
+    n, i, j, k = np.mgrid[0:nlen, 0:x.shape[0+x3], 0:y.shape[1+y3],
                           0:y.shape[0+y3]]
-    return np.sum((x[n, i, k] if x3 else x[i,k]) * 
+    return np.sum((x[n, i, k] if x3 else x[i,k]) *
                   (y[n, k, j] if y3 else y[k,j]), 3)
-    
+
 def permutations(x):
     '''Given a listlike, x, return all permutations of x
-    
+
     Returns the permutations of x in the lexical order of their indices:
     e.g.
     >>> x = [ 1, 2, 3, 4 ]
     >>> for p in permutations(x):
     >>>   print p
     [ 1, 2, 3, 4 ]
-    [ 1, 2, 4, 3 ] 
+    [ 1, 2, 4, 3 ]
     [ 1, 3, 2, 4 ]
     [ 1, 3, 4, 2 ]
     [ 1, 4, 2, 3 ]
@@ -1401,14 +1401,14 @@ def permutations(x):
     [ 4, 3, 2, 1 ]
     '''
     #
-    # The algorithm is attributed to Narayana Pandit from his 
+    # The algorithm is attributed to Narayana Pandit from his
     # Ganita Kaumundi (1356). The following is from
     #
     # http://en.wikipedia.org/wiki/Permutation#Systematic_generation_of_all_permutations
     #
-    # 1. Find the largest index k such that a[k] < a[k + 1]. 
+    # 1. Find the largest index k such that a[k] < a[k + 1].
     #    If no such index exists, the permutation is the last permutation.
-    # 2. Find the largest index l such that a[k] < a[l]. 
+    # 2. Find the largest index l such that a[k] < a[l].
     #    Since k + 1 is such an index, l is well defined and satisfies k < l.
     # 3. Swap a[k] with a[l].
     # 4. Reverse the sequence from a[k + 1] up to and including the final
@@ -1432,17 +1432,17 @@ def permutations(x):
         if k < len(x)-1:
             a[k+1:] = a[:k:-1].copy()
         yield x[a].tolist()
-        
-def convex_hull_transform(image, levels=256, mask = None, 
+
+def convex_hull_transform(image, levels=256, mask = None,
                           chunksize = CONVEX_HULL_CHUNKSIZE,
                           pass_cutoff = 16):
     '''Perform the convex hull transform of this image
-    
+
     image - image composed of integer intensity values
     levels - # of levels that we separate the image into
     mask - mask of points to consider or None to consider all points
     chunksize - # of points processed in first pass of convex hull
-    
+
     for each intensity value, find the convex hull of pixels at or above
     that value and color all pixels within the hull with that value.
     '''
@@ -1459,9 +1459,9 @@ def convex_hull_transform(image, levels=256, mask = None,
     img_shape = tuple(image.shape)
     if img_min == img_max:
         return image
-    
-    scale = (img_min + 
-             np.arange(levels).astype(image.dtype) * 
+
+    scale = (img_min +
+             np.arange(levels).astype(image.dtype) *
              (img_max - img_min) / float(levels-1))
     image = ((image - img_min) * (levels-1) / (img_max - img_min))
     if mask is not None:
@@ -1498,10 +1498,10 @@ def convex_hull_transform(image, levels=256, mask = None,
     min_image[-1, :] = 0
     min_image[:, 0] = 0
     min_image[:, -1] = 0
-    
+
     i,j = np.mgrid[0:image.shape[0], 0:image.shape[1]]
     mask = image > min_image
-        
+
     i = i[mask]
     j = j[mask]
     min_image = min_image[mask]
@@ -1654,14 +1654,14 @@ def convex_hull_transform(image, levels=256, mask = None,
 
 def circular_hough(img, radius, nangles = None, mask=None):
     '''Circular Hough transform of an image
-    
+
     img - image to be transformed.
-    
+
     radius - radius of circle
-    
+
     nangles - # of angles to measure, e.g. nangles = 4 means accumulate at
               0, 90, 180 and 270 degrees.
-    
+
     Return the Hough transform of the image which is the accumulators
     for the transform x + r cos t, y + r sin t.
     '''
@@ -1693,54 +1693,54 @@ def circular_hough(img, radius, nangles = None, mask=None):
 
 def hessian(image, return_hessian=True, return_eigenvalues=True, return_eigenvectors=True):
     '''Calculate hessian, its eigenvalues and eigenvectors
-    
+
     image - n x m image. Smooth the image with a Gaussian to get derivatives
             at different scales.
-    
+
     return_hessian - true to return an n x m x 2 x 2 matrix of the hessian
                      at each pixel
-                     
+
     return_eigenvalues - true to return an n x m x 2 matrix of the eigenvalues
                          of the hessian at each pixel
-                         
+
     return_eigenvectors - true to return an n x m x 2 x 2 matrix of the
                           eigenvectors of the hessian at each pixel
-                          
+
     The values of the border pixels for the image are not calculated and
     are zero
     '''
     #The Hessian, d(f(x0, x1))/dxi/dxj for i,j = [0,1] is approximated by the
     #following kernels:
-    
+
     #d00: [[1], [-2], [1]]
     #d11: [[1, -2, 1]]
-    #d01 and d10: [[   1, 0,-1], 
+    #d01 and d10: [[   1, 0,-1],
                   #[   0, 0, 0],
                   #[  -1, 0, 1]] / 2
-                    
-    
+
+
     #The eigenvalues of the hessian:
     #[[d00, d01]
      #[d01, d11]]
      #L1 = (d00 + d11) / 2 + ((d00 + d11)**2 / 4 - (d00 * d11 - d01**2)) ** .5
      #L2 = (d00 + d11) / 2 - ((d00 + d11)**2 / 4 - (d00 * d11 - d01**2)) ** .5
-     
+
      #The eigenvectors of the hessian:
      #if d01 != 0:
        #[(L1 - d11, d01), (L2 - d11, d01)]
     #else:
        #[ (1, 0), (0, 1) ]
-       
-       
+
+
     #Ideas and code borrowed from:
     #http://www.math.harvard.edu/archive/21b_fall_04/exhibits/2dmatrices/index.html
     #http://www.longair.net/edinburgh/imagej/tubeness/
-    
-    
+
+
     hessian = np.zeros((image.shape[0], image.shape[1], 2, 2))
     hessian[1:-1, :, 0, 0] = image[:-2, :] - (2 * image[1:-1, :]) + image[2:, :]
     hessian[1:-1, 1:-1, 0, 1] = hessian[1:-1, 1:-1, 0, 1] = (
-        image[2:, 2:] + image[:-2, :-2] - 
+        image[2:, 2:] + image[:-2, :-2] -
         image[2:, :-2] - image[:-2, 2:]) / 4
     hessian[:, 1:-1, 1, 1] = image[:, :-2] - (2 * image[:, 1:-1]) + image[:, 2:]
     #
@@ -1752,24 +1752,24 @@ def hessian(image, return_hessian=True, return_eigenvalues=True, return_eigenvec
     A = hessian[:, :, 0, 0]
     B = hessian[:, :, 0, 1]
     C = hessian[:, :, 1, 1]
-    
+
     b = -(A + C)
     c = A * C - B * B
     discriminant = b * b - 4 * c
-    
-    # pn is something that broadcasts over all points and either adds or 
+
+    # pn is something that broadcasts over all points and either adds or
     # subtracts the +/- part of the eigenvalues
-    
+
     pn = np.array([1, -1])[np.newaxis, np.newaxis, :]
-    L = (- b[:, :, np.newaxis] + 
+    L = (- b[:, :, np.newaxis] +
          (np.sqrt(discriminant)[:, :, np.newaxis] * pn)) / 2
     #
     # Report eigenvalue # 0 as the one with the highest absolute magnitude
     #
     L[np.abs(L[:, :, 1]) > np.abs(L[:, :, 0]), :] =\
       L[np.abs(L[:, :, 1]) > np.abs(L[:, :, 0]), ::-1]
-    
-    
+
+
     if return_eigenvectors:
         #
         # Calculate for d01 != 0
@@ -1786,7 +1786,7 @@ def hessian(image, return_hessian=True, return_eigenvalues=True, return_eigenvec
         #
         d = np.sqrt(np.sum(v * v, 3))
         v /= d[:, :, :, np.newaxis]
-    
+
     result = []
     if return_hessian:
         result.append(hessian)
@@ -1802,24 +1802,24 @@ def hessian(image, return_hessian=True, return_eigenvalues=True, return_eigenvec
 
 def poisson_equation(image, gradient=1, max_iter=100, convergence=.01, percentile = 90.0):
     '''Estimate the solution to the Poisson Equation
-    
+
     The Poisson Equation is the solution to gradient(x) = h^2/4 and, in this
     context, we use a boundary condition where x is zero for background
     pixels. Also, we set h^2/4 = 1 to indicate that each pixel is a distance
     of 1 from its neighbors.
-    
+
     The estimation exits after max_iter iterations or if the given percentile
     of foreground pixels differ by less than the convergence fraction
     from one pass to the next.
-    
+
     Some ideas taken from Gorelick, "Shape representation and classification
     using the Poisson Equation", IEEE Transactions on Pattern Analysis and
     Machine Intelligence V28, # 12, 2006
-    
+
     image - binary image with foreground as True
     gradient - the target gradient between 4-adjacent pixels
     max_iter - maximum # of iterations at a given level
-    convergence - target fractional difference between values from previous 
+    convergence - target fractional difference between values from previous
                   and next pass
     percentile - measure convergence at this percentile
     '''
@@ -1830,7 +1830,7 @@ def poisson_equation(image, gradient=1, max_iter=100, convergence=.01, percentil
         # Sub-sample to get seed values
         #
         sub_image = image[::2, ::2]
-        sub_pe = poisson_equation(sub_image, 
+        sub_pe = poisson_equation(sub_image,
                                   gradient=gradient*2,
                                   max_iter=max_iter,
                                   convergence=convergence)
@@ -1857,7 +1857,7 @@ def poisson_equation(image, gradient=1, max_iter=100, convergence=.01, percentil
         #
         pe[mask] = 1
         return pe[1:-1, 1:-1]
-        
+
     for itr in range(max_iter):
         next_pe = (pe[i+1, j] + pe[i-1, j] + pe[i, j+1] + pe[i, j-1]) / 4 + 1
         difference = np.abs((pe[mask] - next_pe) / next_pe)
