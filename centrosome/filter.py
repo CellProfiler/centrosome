@@ -13,6 +13,9 @@ from cpmorphology import centers_of_labels
 from cpmorphology import grey_erosion, grey_reconstruction
 from cpmorphology import convex_hull_ijv, get_line_pts
 
+import scipy.ndimage
+import skimage
+
 '''# of points handled in the first pass of the convex hull code'''
 CONVEX_HULL_CHUNKSIZE = 250000
 
@@ -493,20 +496,59 @@ def roberts(image, mask=None):
     result[big_mask] = np.sqrt(diagonal*diagonal + anti_diagonal*anti_diagonal)
     return result
 
-def sobel(image, mask=None):
-    '''Calculate the absolute magnitude Sobel to find the edges
 
-    image - image to process
-    mask - mask of relevant points
+__u = np.array([[[1, 2, 1]]])
+__v = np.array([[[1, 0, -1]]])
 
-    Take the square root of the sum of the squares of the horizontal and
-    vertical Sobels to get a magnitude that's somewhat insensitive to
-    direction.
 
-    Note that scipy's Sobel returns a directional Sobel which isn't
-    useful for edge detection in its raw form.
-    '''
-    return np.sqrt(hsobel(image,mask)**2 + vsobel(image,mask)**2)
+__yt = (0, 2, 1)
+__zt = (2, 0, 1)
+
+
+def sobel(data, mask=None):
+    if data.ndim is 2:
+        return np.sqrt(hsobel(data, mask)**2 + vsobel(data, mask)**2)
+
+    result = np.sqrt(sobel_x(data, mask)**2 + sobel_y(data, mask)**2 + sobel_z(data, mask)**2)
+    result /= np.sqrt(3)
+    return result
+
+
+def sobel_x(data, mask=None):
+    data = skimage.img_as_float(data)
+    kernel = (__u.transpose(__zt) * __v * __u.transpose(__yt)).astype(float) / 16.0
+    result = scipy.ndimage.convolve(data, kernel)
+    return __apply_mask(result, mask)
+
+
+def sobel_y(data, mask=None):
+    data = skimage.img_as_float(data)
+    kernel = (__u.transpose(__zt) * __u * __v.transpose(__yt)).astype(float) / 16.0
+    result = scipy.ndimage.convolve(data, kernel)
+    return __apply_mask(result, mask)
+
+
+def sobel_z(data, mask=None):
+    data = skimage.img_as_float(data)
+    kernel = (__v.transpose(__zt) * __u * __u.transpose(__yt)).astype(float) / 16.0
+    result = scipy.ndimage.convolve(data, kernel)
+    return __apply_mask(result, mask)
+
+
+def __apply_mask(data, mask):
+    if mask is None:
+        data[0, :, :] = 0
+        data[-1, :, :] = 0
+        data[:, 0, :] = 0
+        data[:, -1, :] = 0
+        data[:, :, 0] = 0
+        data[:, :, -1] = 0
+        return data
+
+    selem = scipy.ndimage.generate_binary_structure(3, 3)
+    mask = scipy.ndimage.binary_erosion(mask, selem, border_value=0)
+    return data * mask
+
 
 def hsobel(image, mask=None):
     '''Find the horizontal edges of an image using the Sobel transform

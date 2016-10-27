@@ -1049,6 +1049,149 @@ class TestVSobel(unittest.TestCase):
         eps = .000001
         self.assertTrue(np.all(np.abs(result) < eps))
 
+
+class TestSobelX(unittest.TestCase):
+    def test_zeros(self):
+        data = np.zeros((10, 10, 10))
+        actual = F.sobel_x(data)
+        self.assertTrue(np.all(actual == 0))
+
+    def test_full_mask(self):
+        data = np.random.rand(10, 10, 10)
+        mask = np.zeros_like(data, dtype=bool)
+        actual = F.sobel_x(data, mask)
+        self.assertTrue(np.all(actual == 0))
+
+    def test_x(self):
+        data = np.zeros((5, 5, 5))
+        data[:, :, 2:5] = 1
+        actual = F.sobel_x(data)
+        expected = np.zeros((5, 5, 5), dtype=bool)
+        expected[1:-1, 1:-1, 1:3] = True
+        self.assertTrue(np.all(actual[expected] > 0))
+        self.assertTrue(np.all(actual[-1 * expected] == 0))
+
+    def test_y(self):
+        data = np.zeros((5, 5, 5))
+        data[:, 2:5, :] = 1
+        actual = F.sobel_x(data)
+        self.assertTrue(np.all(actual == 0))
+
+    def test_z(self):
+        data = np.zeros((5, 5, 5))
+        data[2:5, :, :] = 1
+        actual = F.sobel_x(data)
+        self.assertTrue(np.all(actual == 0))
+
+
+class TestSobelY(unittest.TestCase):
+    def test_zeros(self):
+        data = np.zeros((10, 10, 10))
+        actual = F.sobel_y(data)
+        self.assertTrue(np.all(actual == 0))
+
+    def test_full_mask(self):
+        data = np.random.rand(10, 10, 10)
+        mask = np.zeros_like(data, dtype=bool)
+        actual = F.sobel_y(data, mask)
+        self.assertTrue(np.all(actual == 0))
+
+    def test_x(self):
+        data = np.zeros((5, 5, 5))
+        data[:, :, 2:5] = 1
+        actual = F.sobel_y(data)
+        self.assertTrue(np.all(actual == 0))
+
+    def test_y(self):
+        data = np.zeros((5, 5, 5))
+        data[:, 2:5, :] = 1
+        actual = F.sobel_y(data)
+        expected = np.zeros((5, 5, 5), dtype=bool)
+        expected[1:-1, 1:3, 1:-1] = True
+        self.assertTrue(np.all(actual[expected] > 0))
+        self.assertTrue(np.all(actual[-1 * expected] == 0))
+
+    def test_z(self):
+        data = np.zeros((5, 5, 5))
+        data[2:5, :, :] = 1
+        actual = F.sobel_y(data)
+        self.assertTrue(np.all(actual == 0))
+
+
+class TestSobelZ(unittest.TestCase):
+    def test_zeros(self):
+        data = np.zeros((10, 10, 10))
+        actual = F.sobel_z(data)
+        self.assertTrue(np.all(actual == 0))
+
+    def test_full_mask(self):
+        data = np.random.rand(10, 10, 10)
+        mask = np.zeros_like(data, dtype=bool)
+        actual = F.sobel_z(data, mask)
+        self.assertTrue(np.all(actual == 0))
+
+    def test_x(self):
+        data = np.zeros((5, 5, 5))
+        data[:, :, 2:5] = 1
+        actual = F.sobel_z(data)
+        self.assertTrue(np.all(actual == 0))
+
+    def test_y(self):
+        data = np.zeros((5, 5, 5))
+        data[:, 2:5, :] = 1
+        actual = F.sobel_z(data)
+        self.assertTrue(np.all(actual == 0))
+
+    def test_z(self):
+        data = np.zeros((5, 5, 5))
+        data[2:5, :, :] = 1
+        actual = F.sobel_z(data)
+        expected = np.zeros((5, 5, 5), dtype=bool)
+        expected[1:3, 1:-1, 1:-1] = True
+        self.assertTrue(np.all(actual[expected] > 0))
+        self.assertTrue(np.all(actual[-1 * expected] == 0))
+
+
+class TestSobel3D(unittest.TestCase):
+    def test_zeros(self):
+        data = np.zeros((10, 10, 10))
+        actual = F.sobel(data)
+        self.assertTrue(np.all(actual == 0))
+
+    def test_full_mask(self):
+        data = np.random.rand(10, 10, 10)
+        mask = np.zeros_like(data, dtype=bool)
+        actual = F.sobel(data, mask)
+        self.assertTrue(np.all(actual == 0))
+
+    def test_x(self):
+        data = np.zeros((5, 5, 5))
+        data[:, :, 2:5] = 1
+        actual = F.sobel(data)
+        expected = np.zeros((5, 5, 5), dtype=bool)
+        expected[1:-1, 1:-1, 1:3] = True
+        self.assertTrue(np.all(actual[expected] > 0))
+        self.assertTrue(np.all(actual[-1 * expected] == 0))
+
+    def test_y(self):
+        data = np.zeros((5, 5, 5))
+        data[:, 2:5, :] = 1
+        actual = F.sobel(data)
+        expected = np.zeros((5, 5, 5), dtype=bool)
+        expected[1:-1, 1:3, 1:-1] = True
+        self.assertTrue(np.all(actual[expected] > 0))
+        self.assertTrue(np.all(actual[-1 * expected] == 0))
+
+    def test_z(self):
+        data = np.zeros((5, 5, 5))
+        data[2:5, :, :] = 1
+        actual = F.sobel(data)
+        expected = np.zeros((5, 5, 5), dtype=bool)
+        expected[1:3, 1:-1, 1:-1] = True
+        self.assertTrue(np.all(actual[expected] > 0))
+        self.assertTrue(np.all(actual[-1 * expected] == 0))
+
+
 class TestPrewitt(unittest.TestCase):
     def test_00_00_zeros(self):
         '''Prewitt on an array of all zeros'''
