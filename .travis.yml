@@ -1,34 +1,18 @@
-addons:
-    apt:
-        packages:
-            - python-imaging
-            - python-matplotlib
-            - python-numpy
-            - python-scipy
-cache:
-    apt: true
-    directories:
-        - "$HOME/.cache/pip"
-        - "$TRAVIS_BUILD_DIR/.tox"
-deploy:
-    on:
-        repo: CellProfiler/centrosome
-        tags: true
-    password:
-        secure: qiTqut7Rft9LoRb7n0Ev7puZWSMfhWDxajeZ3DRwjt9cw50ViBWyIk6xCnjY7Yyrq8b5XJ/llnqjLAQ1Nh3zzAKS3IFbSTExQXucIgvwaEtfO7209ruU1Ar24q6gz+1qMBiTx8s5vcLvQNYAxqVozFnQcxy5Gme2YwjXclJamFj4Tzz/e37O1Tk6CXqyI1gdDUCl2b7Qxtb5vfjYiCE6u+9TArhOXtorDPQ9t0GOxVytgFocCN195IAL34CckQKLGutEYjO0ZoWNfgZ611HKw5K3MvTROAkBAQ6UdqA8twWTIknaxm9wFG1m04XrrSpHscQhAYNvM894g+4D28QXNobMmrd7trDjpTs9TguMkomCuNLict5hMsiutn72ZauB0iKbmc4CD2IEUHv4swcEH/7XQD2oGmTzskidpWk09pmxVFBRyP61ek+y4dAmYLpDqs/1nepUK3pedG96lvM0Ku23apcs1Lc57O1S2TfzvANUjfkZipOpuYZaYbKHEsCcDYFBvOZ6170AsR7TQfVuxpfFXdm8ORm3AtaRH1zSCxM6iXcin1sjJld/58aLZd0OUQj+/Gz5ZH5LAol7h/C1WN6A7KylBJV6dVc87jLUlOFl3QOC6ZruuocjTfQ+vDsW/80lBu63/LoJ9btwmoUyZdFSAvIB/vcHUH5BIvqRC0o=
-    provider: pypi
-    skip_cleanup: true
-    user: "0x00B1"
-install:
-    - pip install --upgrade cython
-    - pip install --upgrade tox
-language: python
+matrix:
+  include:
+    - sudo: required
+      services:
+        - docker
+      env: DOCKER_IMAGE=quay.io/pypa/manylinux1_x86_64
+    - sudo: required
+      services:
+        - docker
+      env: DOCKER_IMAGE=quay.io/pypa/manylinux1_i686
+           PRE_CMD=linux32
 notifications:
-    email: false
-python:
-    - 2.7
+  email: false
+install:
+  - docker pull $DOCKER_IMAGE
 script:
-    - tox
-sudo: false
-virtualenv:
-    system_site_packages: true
+  - docker run --rm -v `pwd`:/io $DOCKER_IMAGE $PRE_CMD /io/travis/manylinux.sh
+  - ls wheelhouse/

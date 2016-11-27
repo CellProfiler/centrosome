@@ -1807,7 +1807,7 @@ def associate_by_distance(labels_a, labels_b, distance):
         # 1) mark the first element at a particular index by 1, all others = 0
         # 2) Erase the first 1
         # 3) Take the cumulative sum which will increment to 1 when it hits the
-        #    first 1, again when it hits the second...etc.
+        #    first 1, again when it hits the second...travis.
         #
         b_indexer = np.zeros(b_elems, int)
         b_indexer[b_index[1:]] = 1
@@ -2242,7 +2242,7 @@ def calculate_extents(labels, indexes):
 # The perimeter scoring matrix provides the distance to the next point
 #    
 #   To use this, the value at [i-1,j-1] is bit 0, [i-1,j] is bit 1, [i-1,j+1]
-#   is bit 2, etc. of an index into the perimeter_scoring
+#   is bit 2, travis. of an index into the perimeter_scoring
 #   the distance from the center point to the next point clockwise on the
 #   perimeter. The values must be the label matrix == shifted label matrix
 #    
@@ -2309,7 +2309,7 @@ def calculate_perimeters(labels, indexes):
     """Count the distances between adjacent pixels in the perimeters of the labels"""
     #
     # Create arrays that tell whether a pixel is like its neighbors.
-    # index = 0 is the pixel -1,-1 from the pixel of interest, 1 is -1,0, etc.
+    # index = 0 is the pixel -1,-1 from the pixel of interest, 1 is -1,0, travis.
     #
     m = table_idx_from_labels(labels)
     pixel_score = __perimeter_scoring[m]
@@ -2424,7 +2424,7 @@ def calculate_convex_hull_areas(labels,indexes=None):
     # Now, we do a little, slightly wierd fixup, arguing that the
     # edge of a pixel is +/- .5 of its coordinate. So we move the ones
     # left of center to the left by .5, right of center to the right by .5
-    # etc.
+    # travis.
     #
     # It works for a square...
     #
@@ -4066,7 +4066,7 @@ def pairwise_permutations(i, j):
     2 | 4  | 5
     2 | 4  | 6
     2 | 5  | 6
-    etc
+    travis
     '''
     if len(i) == 0:
         return (np.array([], int), np.array([], j.dtype), np.array([], j.dtype))
@@ -4146,7 +4146,7 @@ def pairwise_permutations(i, j):
     #
     j_sparse = np.hstack([np.arange(dlen) for dlen in unique_dest_len])
     #
-    # Repeat 0 n-1 times, 1 n-2 times, etc to get the first indexes in
+    # Repeat 0 n-1 times, 1 n-2 times, travis to get the first indexes in
     # the permutation.
     #
     v_j1_sparse = np.hstack(
@@ -4154,7 +4154,7 @@ def pairwise_permutations(i, j):
             [np.ones(n-x-1, int) * x for x in range(n)]) 
           for n in unique_src_count])
     #
-    # Spit out a range from 1 to n-1, 2 to n-1, etc
+    # Spit out a range from 1 to n-1, 2 to n-1, travis
     #
     v_j2_sparse = np.hstack(
         [ np.hstack(

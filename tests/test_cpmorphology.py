@@ -1174,7 +1174,7 @@ class TestCalculateExtents(unittest.TestCase):
         Regression test of a bug: was computing area like this:
         scind.sum(labels, labels, indexes)
         which works for the object that's labeled "1", but is 2x for 2, 3x
-        for 3, etc... oops.
+        for 3, travis... oops.
         '''
         labels = np.zeros((10,20), int)
         labels[3:7, 2:5] = 1
