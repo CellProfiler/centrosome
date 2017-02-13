@@ -1,6 +1,7 @@
 import centrosome.kirsch
 import scipy.misc
 import numpy as np
+import numpy.testing
 import unittest
 
 class TestKirsch(unittest.TestCase):
@@ -24,4 +25,4 @@ class TestKirsch(unittest.TestCase):
                 expected[ioff + 1, joff+1] = img[ioff + 1, joff+1] * 5
             expected[1, 1] = 0
             result = centrosome.kirsch.kirsch(img)
-            self.assertEqual(result[1, 1], np.sum(expected))
+            numpy.testing.assert_approx_equal(result[1, 1], np.sum(expected))

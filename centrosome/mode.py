@@ -17,5 +17,3 @@ def mode(a):
     counts = indices[1:] - indices[:-1]
     best_indices = indices[:-1][counts == np.max(counts)]
     return aa[best_indices]
-    
-    
