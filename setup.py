@@ -88,6 +88,7 @@ setuptools.setup(
         ),
     ]),
     install_requires=[
+        "matplotlib",
         "numpy",
         "pillow",
         "scikit-image",
