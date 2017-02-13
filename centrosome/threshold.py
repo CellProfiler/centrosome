@@ -11,6 +11,7 @@ import scipy.interpolate
 from centrosome.otsu import otsu, entropy, otsu3, entropy3
 from centrosome.smooth import smooth_with_noise
 from centrosome.filter import stretch, unstretch
+from centrosome.sizeintervalprecision import sizeintervalprecision
 
 TM_OTSU                         = "Otsu"
 TM_OTSU_GLOBAL                  = "Otsu Global"
@@ -43,6 +44,8 @@ TM_MCT_PER_OBJECT               = "MCT PerObject"
 TM_MANUAL                       = "Manual"
 TM_MEASUREMENT                  = "Measurement"
 TM_BINARY_IMAGE                 = "Binary image"
+TM_SIZE_INTERVAL_PRECISION      = "SizeIntervalPrecision"
+
 '''Compute a single threshold for the entire image'''
 TM_GLOBAL                       = "Global"
 
@@ -53,7 +56,7 @@ TM_ADAPTIVE                     = "Adaptive"
 TM_PER_OBJECT                   = "PerObject"
 
 TM_METHODS =  [TM_OTSU, TM_MOG, TM_BACKGROUND, TM_ROBUST_BACKGROUND, 
-               TM_RIDLER_CALVARD, TM_KAPUR, TM_MCT]
+               TM_RIDLER_CALVARD, TM_KAPUR, TM_MCT, TM_SIZE_INTERVAL_PRECISION]
 
 TM_GLOBAL_METHODS = [" ".join((x,TM_GLOBAL)) for x in TM_METHODS]
 
@@ -105,6 +108,8 @@ def get_threshold(threshold_method, threshold_modifier, image,
               assign_middle_to_foreground - assign pixels in the middle class
                                in a three-class Otsu to the foreground if true
                                or the background if false.
+    TM_SIZE_INTERVAL_PRECISION - Computes the threshold level that optimizes the global precision with regards to a given
+    expected object size range.
     """
     global_threshold = get_global_threshold(
         threshold_method, image, mask, **kwargs)
@@ -167,6 +172,8 @@ def get_global_threshold(threshold_method, image, mask = None, **kwargs):
         fn = get_kapur_threshold
     elif threshold_method == TM_MCT:
         fn = get_maximum_correlation_threshold
+    elif threshold_method == TM_SIZE_INTERVAL_PRECISION:
+        fn = get_size_interval_precision_threshold
     else:
         raise NotImplementedError("%s algorithm not implemented"%(threshold_method))
     kwargs = dict([(k, v) for k, v in kwargs.items()
@@ -684,6 +691,30 @@ def get_maximum_correlation_threshold(image, mask = None, bins = 256):
 get_maximum_correlation_threshold.args = \
     inspect.getargspec(get_maximum_correlation_threshold).args
 
+def get_size_interval_precision_threshold(image, mask = None, min_diameter=10, max_diameter=40, ignore_large=False):
+    """<b>SizeIntervalPrecision</b> Object Feature based Gray-level Threshold using optimized Global Precision
+    <hr>
+    <b>SizeIntervalPrecision</b> Computes the threshold level that optimized the global precision with regards to a given
+    expected object size range.
+
+    by Petter Ranefall 2016
+
+    "Global Gray-level Thresholding Based on Object Size", Cytometry Part A, 89:4, 2016, pp. 385-390.
+
+    data           - an array of intensity values between zero and one
+    mask           - set non masked pixels to zero
+    min_diameter   - minimum value of typical diameter of objects, in pixel units
+    max_diameter   - maximum value of typical diameter of objects, in pixel units
+    ignore_large   - use this setting to ignore objects above the upper interval limit. This is used to handle clustered objects. The recommendation is that this should be set to True for most applications.
+    """
+        
+    if mask is not None:
+        image = image * mask
+    return sizeintervalprecision(image, min_diameter, max_diameter, ignore_large)
+
+get_size_interval_precision_threshold.args = \
+    inspect.getargspec(get_size_interval_precision_threshold).args
+    
 def weighted_variance(image, mask, binary_image):
     """Compute the log-transformed variance of foreground and background
     
