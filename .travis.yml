@@ -8,6 +8,8 @@ deploy:
     skip_cleanup: true
     user: "0x00B1"
 install:
+    - pip install --upgrade pip
+    - pip install --upgrade wheel
     - pip install --upgrade cython
     - pip install --upgrade numpy
     - pip install --editable .
@@ -19,5 +21,3 @@ python:
 script:
     - python setup.py test
 sudo: false
-virtualenv:
-    system_site_packages: true
