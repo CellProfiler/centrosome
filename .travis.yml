@@ -6,9 +6,6 @@ addons:
             - python-scipy
 cache:
     apt: true
-    directories:
-        - "$HOME/.cache/pip"
-        - "$TRAVIS_BUILD_DIR/.tox"
 deploy:
     on:
         repo: CellProfiler/centrosome
@@ -19,16 +16,14 @@ deploy:
     skip_cleanup: true
     user: "0x00B1"
 install:
-    - pip install --upgrade cython
-    - pip install --upgrade numpy
-    - pip install --upgrade tox
+    - pip install --upgrade cython numpy
 language: python
 notifications:
     email: false
 python:
     - 2.7
 script:
-    - tox
+    - python setup.py test
 sudo: false
 virtualenv:
     system_site_packages: true
