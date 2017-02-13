@@ -3,7 +3,6 @@ addons:
         packages:
             - python-imaging
             - python-matplotlib
-            - python-numpy
             - python-scipy
 cache:
     apt: true
@@ -21,6 +20,7 @@ deploy:
     user: "0x00B1"
 install:
     - pip install --upgrade cython
+    - pip install --upgrade numpy
     - pip install --upgrade tox
 language: python
 notifications:

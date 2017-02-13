@@ -4567,7 +4567,7 @@ def get_outline_pts(labels, idxs):
     # Do some preprocessing on the labels matrix to get a map of chosen labels
     #
     end_label = max(np.max(labels), np.max(idxs)) + 1
-    chosen_labels = np.zeros(end_label, bool)
+    chosen_labels = np.zeros(int(end_label), bool)
     chosen_labels[idxs] = True
     #
     # We trace clockwise, conceptually standing 
