@@ -350,8 +350,8 @@ def get_mog_threshold(image, mask=None, object_fraction = 0.2):
     pixel_count = np.product(cropped_image.shape)
     # Guess at the class means for the 3 classes: background,
     # in-between and object
-    bg_pixel = cropped_image[round(pixel_count * background_fraction/2.0)]
-    fg_pixel = cropped_image[round(pixel_count * (1-object_fraction/2))]
+    bg_pixel = cropped_image[int(round(pixel_count * background_fraction/2.0))]
+    fg_pixel = cropped_image[int(round(pixel_count * (1-object_fraction/2)))]
     class_mean = np.array([bg_pixel, (bg_pixel+fg_pixel)/2,fg_pixel])
     class_std = np.ones((3,)) * 0.15
     # Initialize prior probabilities of a pixel belonging to each class.
