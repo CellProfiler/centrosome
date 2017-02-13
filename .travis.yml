@@ -8,6 +8,8 @@ deploy:
     skip_cleanup: true
     user: "0x00B1"
 install:
+    - pip install --upgrade cython
+    - pip install --upgrade numpy
     - pip install --editable .
 language: python
 notifications:
