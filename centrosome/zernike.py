@@ -13,16 +13,22 @@ def construct_zernike_lookuptable(zernike_indexes):
     zernike_indexes - an Nx2 array of the Zernike polynomials to be
                       computed.
     """
-    factorial = np.ones((100,))
-    factorial[1:] = np.cumproduct(np.arange(1, 100).astype(float))
-    width = int(np.max(zernike_indexes[:,0]) / 2+1)
-    lut = np.zeros((zernike_indexes.shape[0],width))
+    n_max = np.max(zernike_indexes[:,0])
+    factorial = np.ones((1 + n_max,), dtype=float)
+    factorial[1:] = np.cumproduct(np.arange(1, 1 + n_max, dtype=float))
+    width = int(n_max/2 + 1)
+    lut = np.zeros((zernike_indexes.shape[0],width), dtype=float)
     for idx,(n,m) in zip(range(zernike_indexes.shape[0]),zernike_indexes):
-        for k in range(0,(n-m)/2+1):
+        alt = 1
+        npmh = (n+m)/2
+        nmmh = (n-m)/2
+        for k in range(0,nmmh+1):
             lut[idx,k] = \
-                (((-1)**k) * factorial[n-k] /
-                 (factorial[k]*factorial[(n+m)/2-k]*factorial[(n-m)/2-k]))
+                (alt * factorial[n-k] /
+                 (factorial[k]*factorial[npmh-k]*factorial[nmmh-k]))
+            alt = -alt
     return lut
+
 
 def construct_zernike_polynomials(x, y, zernike_indexes, mask=None, weight=None):
     """Return the zerike polynomials for all objects in an image
@@ -40,35 +46,56 @@ def construct_zernike_polynomials(x, y, zernike_indexes, mask=None, weight=None)
     if x.shape != y.shape:
         raise ValueError("X and Y must have the same shape")
     if mask is None:
-        mask = np.ones(x.shape,bool)
+        pass
     elif mask.shape != x.shape:
         raise ValueError("The mask must have the same shape as X and Y")
-    x = x[mask]
-    y = y[mask]
-    if weight is not None:
-        weight = weight[mask]
-    lut = construct_zernike_lookuptable(zernike_indexes)
+    else:
+        x = x[mask]
+        y = y[mask]
+        if weight is not None:
+            weight = weight[mask]
+    lut = construct_zernike_lookuptable(zernike_indexes) # precompute poly. coeffs.
     nzernikes = zernike_indexes.shape[0]
-    r = np.sqrt(x**2+y**2)
-    phi = np.arctan2(x,y).astype(np.complex)
-    zf = np.zeros((x.shape[0], nzernikes), np.complex)
-    s = np.zeros(x.shape,np.complex)
-    exp_terms = {}
+    # compute radii
+    r_square = np.square(x) # r_square = x**2
+    np.add(r_square, np.square(y), out=r_square) # r_square = x**2 + y**2
+    # z = y + 1j*x
+    # each Zernike polynomial is poly(r)*(r**m * np.exp(1j*m*phi)) ==
+    #                            poly(r)*(y + 1j*x)**m
+    z = np.empty(x.shape, np.complex)
+    np.copyto(z.real, y)
+    np.copyto(z.imag, x)
+    # preallocate buffers
+    s = np.empty_like(x)
+    zf = np.zeros((nzernikes,) + x.shape, np.complex)
+    z_pows = {}
     for idx,(n,m) in zip(range(nzernikes), zernike_indexes):
         s[:]=0
-        if not exp_terms.has_key(m):
-            exp_terms[m] = np.exp(1j*m*phi)
-        exp_term = exp_terms[m]
+        if not m in z_pows:
+            if m == 0:
+                z_pows[m] = np.complex(1.0)
+            else:
+                z_pows[m] = z if m == 1 else (z ** m)
+        z_pow = z_pows[m]
+        # use Horner scheme
         for k in range((n-m)/2+1):
-            s += lut[idx,k] * r**(n-2*k)
-        s[r>1]=0
+            s *= r_square
+            s += lut[idx, k]
+        s[r_square>1]=0
         if weight is not None:
             s *= weight.astype(s.dtype)
-        zf[:,idx] = s*exp_term
+        if m == 0:
+            np.copyto(zf[idx], s) # zf[idx] = s
+        else:
+            np.multiply(s, z_pow, out=zf[idx]) # zf[idx] = s*exp_term
     
-    result = np.zeros(list(mask.shape) + [nzernikes], np.complex)
-    result[mask] = zf
+    if mask is None:
+        result = zf.transpose( tuple(range(1, 1+x.ndim)) + (0, ))
+    else:
+        result = np.zeros( mask.shape + (nzernikes,), np.complex)
+        result[mask] = zf.transpose( tuple(range(1, 1 + x.ndim)) + (0, ))
     return result
+
 
 def score_zernike(zf, radii, labels, indexes=None):
     """Score the output of construct_zernike_polynomials
