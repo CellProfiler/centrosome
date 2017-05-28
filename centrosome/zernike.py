@@ -196,9 +196,12 @@ def get_zernike_indexes(limit=10):
     The Zernikes are stored as complex numbers with the real part
     being (N,M) and the imaginary being (N,-M)
     """
-    zernike_n_m = []
-    for n in range(limit):
-        for m in range(n+1):
-            if (m+n) & 1 == 0:
-                zernike_n_m.append((n,m))
-    return np.array(zernike_n_m)
+    def zernike_indexes_iter(n_max):
+        for n in range(0, n_max):
+            for m in range(n%2, n+1, 2):
+                yield n
+                yield m
+
+    z_ind = np.fromiter(zernike_indexes_iter(limit), np.intc)
+    z_ind = z_ind.reshape( (len(z_ind) // 2, 2) )
+    return z_ind
