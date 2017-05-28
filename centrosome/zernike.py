@@ -148,14 +148,16 @@ def zernike(zernike_indexes,labels,indexes):
     #
     indexes = np.array(indexes,dtype=np.int32)
     nindexes = len(indexes)
-    reverse_indexes = -np.ones((np.max(indexes)+1,),int)
+    reverse_indexes = np.empty((np.max(indexes)+1,),int)
+    reverse_indexes.fill(-1)
     reverse_indexes[indexes] = np.arange(indexes.shape[0],dtype=int)
     mask = reverse_indexes[labels] != -1
 
     centers,radii = minimum_enclosing_circle(labels,indexes)
-    y,x = np.mgrid[0:labels.shape[0],0:labels.shape[1]]
-    xm = x[mask].astype(float)
-    ym = y[mask].astype(float)
+    ny, nx = labels.shape[0:2]
+    y, x = np.asarray(np.mgrid[0:ny-1:complex(0,ny),0:nx-1:complex(0,nx)], dtype=float)
+    xm = x[mask]
+    ym = y[mask]
     lm = labels[mask]
     #
     # The Zernikes are inscribed in circles with points labeled by
@@ -163,23 +165,26 @@ def zernike(zernike_indexes,labels,indexes):
     # So we transform x and y by subtracting the center and
     # dividing by the radius
     #
-    ym = (ym-centers[reverse_indexes[lm],0]) / radii[reverse_indexes[lm]]
-    xm = (xm-centers[reverse_indexes[lm],1]) / radii[reverse_indexes[lm]]
+    rev_ind = reverse_indexes[lm]
+    ## ym = (ym-centers[reverse_indexes[lm],0]) / radii[reverse_indexes[lm]]
+    ym -= centers[rev_ind,0]
+    ym /= radii[rev_ind]
+    ## xm = (xm-centers[reverse_indexes[lm],1]) / radii[reverse_indexes[lm]]
+    xm -= centers[rev_ind,1]
+    xm /= radii[rev_ind]
     #
     # Blow up ym and xm into new x and y vectors
     #
-    x = np.zeros(x.shape)
+    x = np.zeros_like(x)
     x[mask]=xm
-    y = np.zeros(y.shape)
+    y = np.zeros_like(y)
     y[mask]=ym
     #
     # Pass the resulting x and y through the rest of Zernikeland
     #
     score = np.zeros((nindexes, len(zernike_indexes)))
-    for i in range(len(zernike_indexes)):
-        zf = construct_zernike_polynomials(x, y, zernike_indexes[i:i+1], mask)
-        one_score = score_zernike(zf, radii, labels, indexes)
-        score[:,i] = one_score[:,0]
+    zf = construct_zernike_polynomials(x, y, zernike_indexes, mask)
+    score = score_zernike(zf, radii, labels, indexes)
     return score
 
 def get_zernike_indexes(limit=10):
