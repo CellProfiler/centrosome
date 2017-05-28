@@ -112,13 +112,14 @@ def score_zernike(zf, radii, labels, indexes=None):
         indexes = np.arange(1,np.max(labels)+1,dtype=np.int32)
     else:
         indexes = np.array(indexes, dtype=np.int32)
-    radii = np.array(radii)
+    radii = np.asarray(radii, dtype=float)
+    n = radii.size
     k = zf.shape[2]
-    n = np.product(radii.shape)
     score = np.zeros((n,k))
     if n == 0:
         return score
-    areas = radii**2 * np.pi
+    areas = np.square(radii)
+    areas *= np.pi
     for ki in range(k):
         zfk=zf[:,:,ki]
         real_score = scipy.ndimage.sum(zfk.real,labels,indexes)
@@ -126,7 +127,12 @@ def score_zernike(zf, radii, labels, indexes=None):
             
         imag_score = scipy.ndimage.sum(zfk.imag,labels,indexes)
         imag_score = fixup_scipy_ndimage_result(imag_score)
-        one_score = np.sqrt(real_score**2+imag_score**2) / areas
+        # one_score = np.sqrt(real_score**2+imag_score**2) / areas
+        np.square(real_score, out=real_score)
+        np.square(imag_score, out=imag_score)
+        one_score = real_score + imag_score
+        np.sqrt(one_score, out=one_score)
+        one_score /= areas
         score[:,ki] = one_score
     return score
 
