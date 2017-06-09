@@ -751,9 +751,9 @@ def convex_hull_ijv(pixel_labels, indexes, fast=True):
         finish_me = ((new_counts > 0) & 
                      ((new_counts <= done_count) | 
                       (new_counts == counts)))
-        indexes_to_finish = np.argwhere(finish_me).astype(np.int32)
+        indexes_to_finish = np.argwhere(finish_me).astype(np.int32).squeeze()
         keep_me = (new_counts > done_count) & (new_counts < counts)
-        indexes_to_keep = np.argwhere(keep_me).astype(np.int32)
+        indexes_to_keep = np.argwhere(keep_me).astype(np.int32).squeeze()
         if len(indexes_to_finish):
             result_counts[finish_me] = new_counts[finish_me]
             #
