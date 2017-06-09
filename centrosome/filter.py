@@ -1869,7 +1869,7 @@ def poisson_equation(image, gradient=1, max_iter=100, convergence=.01, percentil
                                0:(sub_pe.shape[1]*2)].astype(float) / 2
         pe[1:(sub_image.shape[0]*2+1), 1:(sub_image.shape[1]*2+1)] = \
             scind.map_coordinates(sub_pe, coordinates, order=1)
-        pe[~image] = 0
+        pe[:image.shape[0], :image.shape[1]][~image] = 0
     else:
         pe[1:-1,1:-1] = image
     #
