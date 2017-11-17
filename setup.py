@@ -1,9 +1,18 @@
-import Cython.Build
+import glob
+import os.path
+import sys
+
 import pkg_resources
 import setuptools
 import setuptools.command.build_ext
 import setuptools.command.test
-import sys
+
+try:
+    import Cython.Build
+
+    __cython = True
+except ImportError:
+    __cython = False
 
 
 class BuildExtension(setuptools.command.build_ext.build_ext):
@@ -44,6 +53,47 @@ class Test(setuptools.command.test.test):
         sys.exit(errno)
 
 
+if __cython:
+    __suffix = "pyx"
+    __extkwargs = {"language": "c++"}
+else:
+    __suffix = "cpp"
+    __extkwargs = {}
+
+__extensions = [
+    setuptools.Extension(
+        name="_cpmorphology",
+        sources=[
+            "centrosome/src/_cpmorphology.c"
+        ]
+    ),
+    setuptools.Extension(
+        name="_propagate",
+        sources=[
+            "centrosome/_propagate.{}".format("c" if __suffix == "cpp" else __suffix)
+        ]
+    )
+]
+
+for pyxfile in glob.glob(os.path.join("centrosome", "*.pyx")):
+    name = os.path.splitext(os.path.basename(pyxfile))[0]
+
+    if name == "_propagate":
+        continue
+
+    __extensions += [
+        setuptools.Extension(
+            name="centrosome.{}".format(name),
+            sources=[
+                "centrosome/{}.{}".format(name, __suffix)
+            ],
+            **__extkwargs
+        )
+    ]
+
+if __suffix == "pyx":
+    __extensions = Cython.Build.cythonize(__extensions)
+
 setuptools.setup(
     author="Allen Goodman",
     author_email="agoodman@broadinstitute.org",
@@ -66,27 +116,7 @@ setuptools.setup(
         "test": Test
     },
     description="An open source image processing library",
-    ext_modules=Cython.Build.cythonize([
-        setuptools.Extension(
-            name="_cpmorphology",
-            sources=[
-                "centrosome/src/_cpmorphology.c",
-            ]
-        ),
-        setuptools.Extension(
-            name="_propagate",
-            sources=[
-                "centrosome/_propagate.pyx",
-            ],
-        ),
-        setuptools.Extension(
-            name="*",
-            language="c++",
-            sources=[
-                "centrosome/*.pyx",
-            ],
-        ),
-    ]),
+    ext_modules=__extensions,
     install_requires=[
         "matplotlib",
         "numpy",
