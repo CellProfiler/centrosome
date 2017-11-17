@@ -6,8 +6,6 @@ __pycache__
 *.so
 build
 centrosome.egg-info/
-centrosome/*.c
-centrosome/*.cpp
 *.pyc
 *.pyd
 dist
