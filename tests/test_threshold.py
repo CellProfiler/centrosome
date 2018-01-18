@@ -168,6 +168,12 @@ class TestThreshold(unittest.TestCase):
         expected = .3 + 2 * norm.ppf(.75)
         self.assertLess(np.abs(t - expected), .02)
         
+    def test_04_09_sizeintervalprecision(self):
+        img = self.make_mog_image(.3, .05, .5, .2, .95, (45, 35))
+        t = T.get_global_threshold(T.TM_SIZE_INTERVAL_PRECISION, img, min_diameter=5, max_diameter=10, ignore_large=False)
+        print("sip t " + str(t))
+        self.assertTrue(t > 0 and t < 1)
+        
 if __name__=="__main__":
     unittest.main()
     
