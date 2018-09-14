@@ -7,7 +7,9 @@ import centrosome.lapjv
 invalid_match = 1000000  # limiting the choices of the algorithms
 
 
-def euclidean_dist((x1, y1), (x2, y2)):
+def euclidean_dist(x1_y1, x2_y2):
+    x1, y1 = x1_y1
+    x2, y2 = x2_y2
     return math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
 
 

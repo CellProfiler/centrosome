@@ -529,7 +529,7 @@ def strel_periodicline(xoff, yoff, n):
     (k * yoff, k * xoff)
     for k in range(-n, n+1)
     """
-    xoff, yoff, n = [int(t) for t in xoff, yoff, n]
+    xoff, yoff, n = [int(t) for t in (xoff, yoff, n)]
     center_x, center_y = abs(n * xoff), abs(n * yoff)
     result = np.zeros((center_y * 2 + 1, center_x * 2 + 1), bool)
     k = np.arange(-n, n+1)
@@ -545,7 +545,7 @@ def strel_rectangle(width, height):
     height = the height of the structuring element (in the i direction). The
             height will be rounded down to the nearest multiple of 2*n+1
     """
-    return np.ones([int((hw - 1) / 2) * 2 + 1 for hw in height, width], bool)
+    return np.ones([int((hw - 1) / 2) * 2 + 1 for hw in (height, width)], bool)
 
 def strel_square(s):
     """Create a square structuring element
@@ -946,7 +946,7 @@ def fill_convex_hulls(ch_pts, ch_counts):
         i_horiz = l_horiz = j_first_horiz = j_last_horiz = np.zeros(0, int)
     
     if (np.any(~ horizontal)):
-        ch_pts, ch_pts1, n_i = [x[~horizontal] for x in ch_pts, ch_pts1, n_i]
+        ch_pts, ch_pts1, n_i = [x[~horizontal] for x in (ch_pts, ch_pts1, n_i)]
         indexer = Indexes(n_i)
         l = ch_pts[indexer.rev_idx, 0]
         sign = np.sign(ch_pts1[:, 0] - ch_pts[:, 1])
@@ -3878,7 +3878,7 @@ def skeleton_length(labels, indices=None):
                     for adjacent_i, adjacent_j in (
                         (ii-1, jj), (ii, jj-1), (ii+1, jj), (ii, jj+1)):
                         if any([_ < -1 or _ > 1 
-                                for _ in adjacent_i, adjacent_j]):
+                                for _ in (adjacent_i, adjacent_j)]):
                             continue
                         aidx = 2 ** (adjacent_i+1 + (adjacent_j + 1) * 3)
                         mask = mask & ((np.arange(512) & aidx) != aidx)
