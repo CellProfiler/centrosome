@@ -1,17 +1,16 @@
 import numpy as np
 import scipy.ndimage as scind
-from scipy.ndimage import map_coordinates, label
-from scipy.ndimage import convolve, gaussian_filter
-from scipy.ndimage import binary_erosion
-from scipy.ndimage import generate_binary_structure
+from scipy.ndimage import (binary_erosion, convolve, gaussian_filter,
+                           generate_binary_structure, label,
+                           map_coordinates)
 
 import _filter
 from centrosome.rankorder import rank_order
 from centrosome.smooth import smooth_with_function_and_mask
 from cpmorphology import fixup_scipy_ndimage_result as fix
-from cpmorphology import centers_of_labels
-from cpmorphology import grey_erosion, grey_reconstruction
-from cpmorphology import convex_hull_ijv, get_line_pts
+from cpmorphology import (centers_of_labels, convex_hull_ijv,
+                          get_line_pts, grey_dilation, grey_erosion,
+                          grey_reconstruction)
 
 '''# of points handled in the first pass of the convex hull code'''
 CONVEX_HULL_CHUNKSIZE = 250000
