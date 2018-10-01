@@ -1,16 +1,20 @@
+from __future__ import absolute_import
+from __future__ import division
+import deprecation
 import numpy as np
 import scipy.ndimage as scind
 from scipy.ndimage import (binary_erosion, convolve, gaussian_filter,
                            generate_binary_structure, label,
                            map_coordinates)
 
-import _filter
-from centrosome.rankorder import rank_order
-from centrosome.smooth import smooth_with_function_and_mask
-from cpmorphology import fixup_scipy_ndimage_result as fix
-from cpmorphology import (centers_of_labels, convex_hull_ijv,
-                          get_line_pts, grey_dilation, grey_erosion,
-                          grey_reconstruction)
+from . import _filter
+from .rankorder import rank_order
+from .smooth import smooth_with_function_and_mask
+from .cpmorphology import fixup_scipy_ndimage_result as fix
+from .cpmorphology import (centers_of_labels, convex_hull_ijv,
+                           get_line_pts, grey_dilation,
+                           grey_erosion, grey_reconstruction)
+from six.moves import range
 
 '''# of points handled in the first pass of the convex hull code'''
 CONVEX_HULL_CHUNKSIZE = 250000
@@ -102,6 +106,13 @@ def median_filter(data, mask, radius, percent=50):
         result = output
     return result
 
+
+@deprecation.deprecated(
+    current_version="2.0.0",
+    deprecated_in="2.0.0",
+    details="replaced by the `skimage.restoration.denoise_bilateral` function from `scikit-image` instead",
+    removed_in="2.1.0"
+)
 def bilateral_filter(image, mask, sigma_spatial, sigma_range,
                      sampling_spatial = None, sampling_range = None):
     """Bilateral filter of an image
@@ -246,7 +257,7 @@ def laplacian_of_gaussian(image, mask, size, sigma):
     size  - length of side of square kernel to use
     sigma - standard deviation of the Gaussian
     '''
-    half_size = size/2
+    half_size = size//2
     i,j = np.mgrid[-half_size:half_size+1,
                    -half_size:half_size+1].astype(float) / float(sigma)
     distance = (i**2 + j**2)/2
