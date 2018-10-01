@@ -1,4 +1,7 @@
+from __future__ import absolute_import
 from __future__ import print_function
+from six.moves import range
+
 __version__ = '$Revision$'
 
 import numpy
@@ -7,7 +10,7 @@ import unittest
 import time
 
 import centrosome.propagate
-import _propagate
+from centrosome import _propagate
 
 # class Test_Propagate(unittest.TestCase):
 #     def test_01_01_test_convert_to_ints(self):
@@ -115,7 +118,7 @@ class TestPropagate(unittest.TestCase):
         x_coords = numpy.random.uniform(low=0, high=1000,size=(300,)).astype(int)
         y_coords = numpy.random.uniform(low=0, high=1000,size=(300,)).astype(int)
         labels = numpy.zeros((1000,1000),dtype=int)
-        labels[x_coords,y_coords]=numpy.array(range(300))+1
+        labels[x_coords, y_coords] = numpy.arange(1, 301)
         mask = numpy.ones((1000,1000),bool)
         t1 = time.clock()
         result, distances = centrosome.propagate.propagate(image, labels, mask, 1.0)
