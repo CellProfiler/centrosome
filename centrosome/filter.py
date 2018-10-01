@@ -717,6 +717,7 @@ def granulometry_filter(image, min_radius, max_radius, mask=None):
     #
     # Initialize
     #
+    inverted_image = image.max() - image
     previous_opened_image = image
     eroded_image = image
     selected_granules_image = np.zeros(image.shape)
