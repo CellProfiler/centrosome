@@ -589,7 +589,7 @@ def relabel(image):
     consecutive_labels = np.arange(len(unique_labels))+1
     label_table = np.zeros(unique_labels.max()+1, int)
     label_table[unique_labels] = consecutive_labels
-    #
+    #!
     # Use the label table to remap all of the labels
     #
     new_image = label_table[image]
