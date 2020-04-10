@@ -81,7 +81,7 @@ for pyxfile in glob.glob(os.path.join("centrosome", "*.pyx")):
         setuptools.Extension(
             name="centrosome.{}".format(name),
             sources=["centrosome/{}.{}".format(name, __suffix)],
-            **__extkwargs,
+            **__extkwargs
         )
     ]
 
