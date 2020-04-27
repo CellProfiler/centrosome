@@ -79,7 +79,7 @@ def get_threshold(
     threshold_range_max=None,
     threshold_correction_factor=1.0,
     adaptive_window_size=10,
-    **kwargs,
+    **kwargs
 ):
     """Compute a threshold for an image
     
