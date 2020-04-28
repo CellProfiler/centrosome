@@ -123,7 +123,7 @@ setuptools.setup(
         "scipy",
     ],
     tests_require=[
-        "pytest==5.2.2",
+        "pytest",
     ],
     keywords="",
     license="BSD",
