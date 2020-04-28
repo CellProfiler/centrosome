@@ -122,6 +122,9 @@ setuptools.setup(
         "scikit-image",
         "scipy",
     ],
+    tests_require=[
+        "pytest==5.2.2",
+    ],
     keywords="",
     license="BSD",
     long_description="",
