@@ -290,9 +290,9 @@ class TestStrelLine(unittest.TestCase):
         eps = np.finfo(float).eps
         for eachfloat in [sin,y,eps]:
             if 'numpy' in str(type(eachfloat)):
-                warnings.warn(eachfloat,eachfloat.dtype)
+                warnings.warn(str(eachfloat)+str(eachfloat.dtype))
             else:
-                warnings.warn(eachfloat,type(eachfloat))
+                warnings.warn(str(eachfloat)+str(type(eachfloat)))
 
     def test_01(self):
         test_cases = (
