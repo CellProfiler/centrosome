@@ -228,7 +228,7 @@ If mask is given, only masked points are used for the regression."""
         # indices is empty when mask changes to all zeros
         else:
             a = np.array((z.T.flatten()[indices[0]]))
-            pz = np.linalg.lstsq(V.T, a.T)[0].T
+            pz = np.linalg.lstsq(V.T, a.T,rcond=-1)[0].T
 
     pz = pz.reshape((len(py), len(px)))
     return pz.transpose()
