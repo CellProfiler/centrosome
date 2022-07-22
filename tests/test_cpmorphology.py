@@ -282,6 +282,7 @@ class TestStrelDiamond(unittest.TestCase):
 
 class TestStrelLine(unittest.TestCase):
     def test_00(self):
+        import warnings
         angle = float(30) * np.pi / 180.0
         length = 8
         sin =  np.sin(angle) * length / 2
@@ -289,9 +290,9 @@ class TestStrelLine(unittest.TestCase):
         eps = np.finfo(float).eps
         for eachfloat in [sin,y,eps]:
             if 'numpy' in str(type(eachfloat)):
-                print(eachfloat,eachfloat.dtype)
+                warnings.warn(eachfloat,eachfloat.dtype)
             else:
-                print(eachfloat,type(eachfloat))
+                warnings.warn(eachfloat,type(eachfloat))
 
     def test_01(self):
         test_cases = (
