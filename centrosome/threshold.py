@@ -836,8 +836,8 @@ def sum_of_entropies(image, mask, binary_image):
     log_bg = np.log2(bg)
     #
     # Make these into histograms
-    hfg = np.histogram(log_fg, 256, range=(lower, upper), normed=False, weights=None)[0]
-    hbg = np.histogram(log_bg, 256, range=(lower, upper), normed=False, weights=None)[0]
+    hfg = np.histogram(log_fg, 256, range=(lower, upper), weights=None)[0]
+    hbg = np.histogram(log_bg, 256, range=(lower, upper), weights=None)[0]
     # hfg = scipy.ndimage.histogram(log_fg,lower,upper,256)
     # hbg = scipy.ndimage.histogram(log_bg,lower,upper,256)
     #
