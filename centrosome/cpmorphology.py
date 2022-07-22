@@ -167,7 +167,7 @@ def adjacent(labels):
     """
     high = labels.max() + 1
     if high > np.iinfo(labels.dtype).max:
-        labels = labels.astype(np.int)
+        labels = labels.astype(np.int32)
     image_with_high_background = labels.copy()
     image_with_high_background[labels == 0] = high
     min_label = scind.minimum_filter(
