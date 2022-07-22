@@ -3,7 +3,7 @@ from __future__ import print_function
 import warnings
 
 import numpy as np
-from scipy import linspace
+from numpy import linspace
 from scipy.ndimage import affine_transform
 from six.moves import range
 
