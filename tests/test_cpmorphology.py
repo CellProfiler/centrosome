@@ -294,7 +294,7 @@ class TestStrelLine(unittest.TestCase):
             else:
                 warnings.warn(str(eachfloat)+' '+str(type(eachfloat)))
         import sys
-        warnings.warn(str(numpy.__version__)+' '+str(sys.version))
+        warnings.warn(str(np.__version__)+' '+str(sys.version))
 
     def test_01(self):
         test_cases = (
