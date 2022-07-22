@@ -3083,8 +3083,8 @@ def grey_reconstruction(image, mask, footprint=None, offset=None):
     dims[0] = 2
     inside_slices = [slice(p, -p) for p in padding]
     values = np.ones(dims) * np.min(image)
-    values[[0] + inside_slices] = image
-    values[[1] + inside_slices] = mask
+    values[tuple([0]+inside_slices)] = image
+    values[tuple([1]+inside_slices)] = mask
     #
     # Create a list of strides across the array to get the neighbors
     # within a flattened array
@@ -3166,7 +3166,7 @@ def grey_reconstruction(image, mask, footprint=None, offset=None):
     #
     values = value_map[values[:image_stride]]
     values.shape = np.array(image.shape) + 2 * padding
-    return values[inside_slices]
+    return values[tuple(inside_slices)]
 
 
 def opening(image, radius=None, mask=None, footprint=None):
@@ -3240,12 +3240,12 @@ def table_lookup(image, table, border_value, iterations=None):
     center_is_zero = np.array([(x & 2 ** 4) == 0 for x in range(2 ** 9)])
     use_index_trick = False
     if not np.any(table[center_is_zero]) and (
-        np.issubdtype(image.dtype, np.bool) or np.issubdtype(image.dtype, np.integer)
+        np.issubdtype(image.dtype, bool) or np.issubdtype(image.dtype, np.integer)
     ):
         # Use the index trick
         use_index_trick = True
         invert = False
-    elif np.all(table[~center_is_zero]) and np.issubdtype(image.dtype, np.bool):
+    elif np.all(table[~center_is_zero]) and np.issubdtype(image.dtype, bool):
         # All ones stay ones, invert the table and the image and do the trick
         use_index_trick = True
         invert = True
