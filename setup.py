@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+
 import glob
 import os.path
 import sys
@@ -22,8 +23,8 @@ class BuildExtension(setuptools.command.build_ext.build_ext):
 
         for extension in self.extensions:
             if (
-                hasattr(extension, "include_dirs")
-                and numpy_includes not in extension.include_dirs
+                    hasattr(extension, "include_dirs")
+                    and numpy_includes not in extension.include_dirs
             ):
                 extension.include_dirs.append(numpy_includes)
 
@@ -59,7 +60,7 @@ if __cython:
     __suffix = "pyx"
     __extkwargs = {
         "language": "c++",
-         "define_macros": [("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION")]
+        "define_macros": [("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION")]
     }
 else:
     __suffix = "cpp"
@@ -90,7 +91,7 @@ for pyxfile in glob.glob(os.path.join("centrosome", "*.pyx")):
     ]
 
 if __suffix == "pyx":
-    __extensions = Cython.Build.cythonize(__extensions, compiler_directives={'language_level' : "3"})
+    __extensions = Cython.Build.cythonize(__extensions, compiler_directives={'language_level': "3"})
 
 setuptools.setup(
     author="Nodar Gogoberidze",
@@ -111,6 +112,8 @@ setuptools.setup(
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
         "Topic :: Scientific/Engineering :: Bio-Informatics",
         "Topic :: Scientific/Engineering",
     ],
@@ -127,7 +130,7 @@ setuptools.setup(
         "numpy>=1.18.2",
         "pillow>=7.1.0",
         "scikit-image>=0.17.2",
-        "scipy>=1.4.1,<1.11",
+        "scipy>=1.4.1,!=1.11.0",
     ],
     tests_require=[
         "pytest",
@@ -137,7 +140,7 @@ setuptools.setup(
     long_description="",
     name="centrosome",
     packages=["centrosome"],
-    setup_requires=["cython", "numpy", "pytest",],
+    setup_requires=["cython", "numpy", "pytest", ],
     url="https://github.com/CellProfiler/centrosome",
     version="1.2.2",
 )
